@@ -16,15 +16,15 @@ export type Database = {
           cohort: string | null;
           created_at: string;
           first_name: string;
-          headline_highlight: string | null;
-          headline_role: string | null;
-          intro: string | null;
+          page: Json;
+          theme: Json;
+
           name: string;
+          photo_blurhash: string | null;
           photo_path: string | null;
           school: string | null;
           slug: string;
           status: string;
-          status_text: string | null;
           updated_at: string;
           user_id: string;
         };
@@ -33,15 +33,15 @@ export type Database = {
           cohort?: string | null;
           created_at?: string;
           first_name: string;
-          headline_highlight?: string | null;
-          headline_role?: string | null;
-          intro?: string | null;
+          page?: Json;
+          theme?: Json;
+
           name: string;
+          photo_blurhash?: string | null;
           photo_path?: string | null;
           school?: string | null;
           slug: string;
           status?: string;
-          status_text?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -50,15 +50,14 @@ export type Database = {
           cohort?: string | null;
           created_at?: string;
           first_name?: string;
-          headline_highlight?: string | null;
-          headline_role?: string | null;
-          intro?: string | null;
+          page?: Json;
+          theme?: Json;
           name?: string;
+          photo_blurhash?: string | null;
           photo_path?: string | null;
           school?: string | null;
           slug?: string;
           status?: string;
-          status_text?: string | null;
           updated_at?: string;
           user_id?: string;
         };
@@ -106,28 +105,34 @@ export type Database = {
       };
       resource_media: {
         Row: {
+          blurhash: string | null;
           caption: string | null;
           consent_confirmed: boolean;
           id: string;
           position: number;
+          ratio: number | null;
           resource_id: string;
           type_hint: string | null;
           url: string;
         };
         Insert: {
+          blurhash?: string | null;
           caption?: string | null;
           consent_confirmed?: boolean;
           id?: string;
           position?: number;
+          ratio?: number | null;
           resource_id: string;
           type_hint?: string | null;
           url: string;
         };
         Update: {
+          blurhash?: string | null;
           caption?: string | null;
           consent_confirmed?: boolean;
           id?: string;
           position?: number;
+          ratio?: number | null;
           resource_id?: string;
           type_hint?: string | null;
           url?: string;
@@ -144,6 +149,7 @@ export type Database = {
       };
       resources: {
         Row: {
+          cover_blurhash: string | null;
           cover_consent_confirmed: boolean;
           cover_path: string | null;
           created_at: string;
@@ -163,6 +169,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          cover_blurhash?: string | null;
           cover_consent_confirmed?: boolean;
           cover_path?: string | null;
           created_at?: string;
@@ -182,6 +189,7 @@ export type Database = {
           user_id?: string;
         };
         Update: {
+          cover_blurhash?: string | null;
           cover_consent_confirmed?: boolean;
           cover_path?: string | null;
           created_at?: string;

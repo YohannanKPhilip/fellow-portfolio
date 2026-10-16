@@ -7,6 +7,8 @@ export const config = {
   sheetId: (import.meta.env.VITE_SHEET_ID ?? '').trim(),
   supabaseUrl: (import.meta.env.VITE_SUPABASE_URL ?? '').trim().replace(/\/$/, ''),
   supabasePublishableKey: (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '').trim(),
+  /** Cloudflare Turnstile site key (public). Empty means the sign-in form has no bot check. */
+  turnstileSiteKey: (import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '').trim(),
   defaultFellow: (import.meta.env.VITE_DEFAULT_FELLOW ?? 'yohannan').trim(),
   siteName: 'Fellow Portfolio',
 } as const;

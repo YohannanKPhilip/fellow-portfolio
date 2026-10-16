@@ -1,5 +1,5 @@
 // GitHub Pages has no server-side routing. Serving index.html as 404.html lets
-// deep links such as /fellow-portfolio/yohannan/r/... load the app, which then
+// deep links such as /yohannan/r/... load the app, which then
 // reads the URL and shows the right page.
 import { copyFileSync, existsSync } from 'node:fs';
 

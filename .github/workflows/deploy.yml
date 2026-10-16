@@ -38,9 +38,10 @@ jobs:
           VITE_DATA_SOURCE: ${{ vars.VITE_DATA_SOURCE }}
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
           VITE_SHEET_ID: ${{ vars.VITE_SHEET_ID }}
           VITE_DEFAULT_FELLOW: ${{ vars.VITE_DEFAULT_FELLOW || 'yohannan' }}
-          VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
+          VITE_BASE: ${{ vars.VITE_BASE || '/' }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

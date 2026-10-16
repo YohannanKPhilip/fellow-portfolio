@@ -1,3 +1,4 @@
+import { legacyPage } from '../lib/page';
 import { safeUrl } from '../lib/links';
 import type { Dataset, Fellow, MediaItem, Resource, ResourceFile } from '../types';
 import { ID_PATTERN, PUBLISHED } from './schema';
@@ -37,14 +38,20 @@ const isPublished = (row: Row) => (row.status ?? '').trim().toLowerCase() === PU
 
 function toFellow(row: Row): Fellow {
   const name = row.name ?? '';
+  const firstName = row.first_name || name.split(' ')[0] || '';
   return {
     id: normalizeId(row.fellow_id),
     name,
-    firstName: row.first_name || name.split(' ')[0] || '',
-    headlineRole: row.headline_role ?? '',
-    headlineHighlight: row.headline_highlight ?? '',
-    statusText: row.status_text ?? '',
-    intro: row.intro ?? '',
+    firstName,
+    // The sheet keeps these as separate columns; they become the same page Supabase pages use.
+    page: legacyPage({
+      firstName,
+      role: row.headline_role,
+      highlight: row.headline_highlight,
+      status: row.status_text,
+      intro: row.intro,
+    }),
+    theme: {},
     school: row.school ?? '',
     city: row.city ?? '',
     cohort: row.cohort ?? '',

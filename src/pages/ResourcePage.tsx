@@ -2,12 +2,14 @@ import { Link, useParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Cover } from '../components/Cover';
 import { MediaGallery } from '../components/MediaGallery';
+import { OwnerEditButton } from '../components/OwnerEditButton';
 import { ResourceCard } from '../components/ResourceCard';
 import { SubjectTag } from '../components/SubjectTag';
 import { LoadError, Loading, NotFoundView } from '../components/StatusView';
 import { useData } from '../data/dataContext';
 import { safeUrl } from '../lib/links';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
+import { useFellowTheme } from '../lib/useFellowTheme';
 
 /** How many other resources to show at the bottom of a resource page. */
 const MORE_COUNT = 3;
@@ -21,7 +23,12 @@ export function ResourcePage() {
       : [];
   const index = all.findIndex((r) => r.id === resourceId);
   const resource = all[index];
+  const pageFellow =
+    state.status === 'ready'
+      ? state.data.dataset.fellows.find((f) => f.id === fellowId)
+      : undefined;
   useDocumentTitle(resource?.title);
+  useFellowTheme(pageFellow?.theme);
 
   if (state.status === 'loading') return <Loading />;
   if (state.status === 'error') return <LoadError message={state.message} />;
@@ -42,6 +49,7 @@ export function ResourcePage() {
 
   return (
     <article className="detail">
+      <OwnerEditButton fellowId={resource.fellowId} resourceId={resource.id} />
       <Link className="back" to={`/${resource.fellowId}`}>
         ← All resources
       </Link>
@@ -62,7 +70,12 @@ export function ResourcePage() {
           )}
         </header>
 
-        <Cover url={resource.coverUrl} className="cover cover--detail" width={1000} />
+        <Cover
+          url={resource.coverUrl}
+          className="cover cover--detail"
+          width={1000}
+          blurhash={resource.coverBlurhash}
+        />
 
         <section className="panel detail__desc">
           <h2 className="panel__title">Description</h2>
@@ -91,24 +104,18 @@ export function ResourcePage() {
             )}
             {resource.files.length > 0 && (
               <>
-                <h3 className="panel__sub">What's inside ({resource.files.length})</h3>
-                <ul className="files">
+                <h3 className="panel__sub">What's inside</h3>
+                <ul className="inside">
                   {resource.files.map((f) => {
                     const href = safeUrl(f.link);
                     return (
                       <li key={f.name}>
-                        <span className="files__name">{f.name}</span>
                         {href ? (
-                          <a
-                            className="files__link"
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Open ↗
+                          <a href={href} target="_blank" rel="noopener noreferrer">
+                            {f.name} ↗
                           </a>
                         ) : (
-                          <span className="files__link files__link--pending">Link coming</span>
+                          f.name
                         )}
                       </li>
                     );
@@ -116,9 +123,7 @@ export function ResourcePage() {
                 </ul>
               </>
             )}
-            <p className="panel__note">
-              Free to use and adapt in your classroom. If you change it, share your version back.
-            </p>
+            <p className="panel__note">Free to use and adapt in your classroom.</p>
           </section>
           <section className="panel">
             <h2 className="panel__title">Details</h2>
@@ -137,7 +142,12 @@ export function ResourcePage() {
       {fellow && others.length > 0 && (
         <section className="more" aria-labelledby="more-title">
           <h2 className="more__title" id="more-title">
-            More from <Avatar name={fellow.firstName} photoUrl={fellow.photoUrl} />{' '}
+            More from{' '}
+            <Avatar
+              name={fellow.firstName}
+              photoUrl={fellow.photoUrl}
+              blurhash={fellow.photoBlurhash}
+            />{' '}
             {fellow.firstName}
           </h2>
           <div className="grid">

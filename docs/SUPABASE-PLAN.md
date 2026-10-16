@@ -115,7 +115,7 @@ Dashboard settings this needs (Authentication):
 
 If the signed-in user has no `fellows` row yet, `/me` shows "Set up your page":
 
-- Page address (`fellow-portfolio/…/priya-sharma`): lowercase letters, numbers and hyphens, checked live for availability. Words used by the site's own routes (`me`, `login`, `auth`, `r`, `admin`, `about`, `api`) are reserved.
+- Page address (`<site>/priya-sharma`): lowercase letters, numbers and hyphens, checked live for availability. Words used by the site's own routes (`me`, `login`, `auth`, `r`, `admin`, `about`, `api`) are reserved.
 - Full name, first name (used in "Hi, I'm …" and "More from …"), headline role, highlight, status text, intro, school, city, cohort, photo.
 - The page address can be changed later, but changing it breaks links people already shared, so the form warns about that. A later improvement could keep old addresses as redirects.
 
@@ -432,16 +432,16 @@ Same rule as the Sheet guide: no students' faces or names without consent. In th
 
 ### Routes
 
-| Address                  | What                                                              | Who       |
-| ------------------------ | ----------------------------------------------------------------- | --------- |
-| `/:fellow`               | Fellow page (unchanged look)                                      | everyone  |
-| `/:fellow/r/:resource`   | Resource page (unchanged look)                                    | everyone  |
-| `/login`                 | Email and code form                                               | everyone  |
-| `/auth/callback`         | Finishes sign-in                                                  | everyone  |
-| `/me`                    | My resources: list with Draft or Published badges, "Add resource" | signed in |
-| `/me/profile`            | Edit my page (photo, headline, intro, page address)               | signed in |
-| `/me/r/new`, `/me/r/:id` | Resource editor                                                   | signed in |
-| `/admin`                 | List of fellows and resources with Unpublish and Delete buttons   | admin     |
+| Address                                  | What                                                              | Who       |
+| ---------------------------------------- | ----------------------------------------------------------------- | --------- |
+| `/:fellow`                               | Fellow page (unchanged look)                                      | everyone  |
+| `/:fellow/r/:resource`                   | Resource page (unchanged look)                                    | everyone  |
+| `/login`                                 | Email and code form                                               | everyone  |
+| `/auth/callback`                         | Finishes sign-in                                                  | everyone  |
+| `/me`                                    | My resources: list with Draft or Published badges, "Add resource" | signed in |
+| `/:fellow/me/profile`                    | Edit my page (photo, headline, intro, page address)               | signed in |
+| `/:fellow/me/r/new`, `/:fellow/me/r/:id` | Resource editor                                                   | signed in |
+| `/admin`                                 | List of fellows and resources with Unpublish and Delete buttons   | admin     |
 
 GitHub Pages has no server-side routing, so these all rely on the existing `404.html` fallback, which already handles the current routes.
 

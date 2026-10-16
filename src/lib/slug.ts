@@ -17,7 +17,8 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const SLUG_MIN = 3;
 export const SLUG_MAX = 40;
 
-export const isReservedSlug = (slug: string) => (RESERVED_SLUGS as readonly string[]).includes(slug);
+export const isReservedSlug = (slug: string) =>
+  (RESERVED_SLUGS as readonly string[]).includes(slug);
 
 /** "Priya Sharma" becomes "priya-sharma". Accents are dropped; anything else becomes a hyphen. */
 export function slugFromName(name: string): string {

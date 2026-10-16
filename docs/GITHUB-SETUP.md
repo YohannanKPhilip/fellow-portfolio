@@ -2,7 +2,7 @@
 
 This is a one-time setup. Afterwards, every change you push goes live on its own in about two minutes.
 
-You'll end up with a site at `https://<your-username>.github.io/fellow-portfolio/`.
+You'll end up with a site at `https://<your-username>.github.io/`.
 
 ## 1. Create a GitHub account
 
@@ -47,7 +47,7 @@ These aren't secrets. The sheet ID ends up in the public site, which is fine bec
 
 1. Go to the **Actions** tab.
 2. Open **Deploy to GitHub Pages** and click **Run workflow**.
-3. When it turns green, your site is live at `https://<your-username>.github.io/fellow-portfolio/`.
+3. When it turns green, your site is live at `https://<your-username>.github.io/`.
 
 From now on, every push to `main` deploys automatically.
 

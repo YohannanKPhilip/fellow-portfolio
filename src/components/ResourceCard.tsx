@@ -10,19 +10,24 @@ const MAX_TAGS = 3;
 /**
  * Every card has the same (short) height. A resource with a cover shows it as a slim strip on
  * top and hides the summary; one without a cover shows the summary in that space instead.
+ *
+ * `to` is where a click goes (default: the resource's public page). `null` makes the card a plain
+ * preview that doesn't link anywhere, as in the page builder.
  */
-export function ResourceCard({ resource }: { resource: Resource }) {
+export function ResourceCard({ resource, to }: { resource: Resource; to?: string | null }) {
   const [coverFailed, setCoverFailed] = useState(false);
   const showCover = Boolean(imageUrl(resource.coverUrl)) && !coverFailed;
   const { tags } = resource;
   const extra = tags.length - MAX_TAGS;
-  return (
-    <Link className="card" to={`/${resource.fellowId}/r/${resource.id}`}>
+
+  const content = (
+    <>
       {showCover && (
         <Cover
           url={resource.coverUrl}
           className="cover cover--card"
           width={700}
+          blurhash={resource.coverBlurhash}
           onFail={() => setCoverFailed(true)}
         />
       )}
@@ -44,6 +49,13 @@ export function ResourceCard({ resource }: { resource: Resource }) {
           </ul>
         )}
       </div>
+    </>
+  );
+
+  if (to === null) return <div className="card card--preview">{content}</div>;
+  return (
+    <Link className="card" to={to ?? `/${resource.fellowId}/r/${resource.id}`}>
+      {content}
     </Link>
   );
 }

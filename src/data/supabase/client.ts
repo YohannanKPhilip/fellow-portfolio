@@ -15,9 +15,10 @@ export function getClient(): SupabaseClient<Database> {
     );
   }
   client ??= createClient<Database>(config.supabaseUrl, config.supabasePublishableKey, {
-    // The sign-in page finishes the link itself (token_hash), so Supabase
-    // must not also try to read the address bar.
-    auth: { detectSessionInUrl: false },
+    // Supabase's own email link (the only one available before custom SMTP) comes back
+    // with the sign-in in the address, and this picks it up. It works on any device,
+    // unlike the PKCE flow, which only works in the browser that asked for the link.
+    auth: { flowType: 'implicit', detectSessionInUrl: true },
   });
   return client;
 }

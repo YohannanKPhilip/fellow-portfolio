@@ -1,4 +1,7 @@
+import { cleanRatio, isBlurhash } from '../../lib/blurhash';
 import { safeUrl } from '../../lib/links';
+import { defaultPage, parsePage } from '../../lib/page';
+import { parseTheme } from '../../lib/theme';
 import type { Dataset, Fellow, MediaItem, Resource, ResourceFile } from '../../types';
 import type { Tables } from './database.types';
 
@@ -18,12 +21,19 @@ const STORAGE_PATH = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\/[A-Za-z0-9._
  * Image fields hold either an outside https link or a path in our Storage
  * bucket ("<user id>/covers/x.webp"). Returns a URL the browser can load.
  */
+/** True for a path in our Storage bucket, false for an outside link. */
+export const isStoragePath = (ref: string) => STORAGE_PATH.test(ref);
+
 export function imageRef(ref: string | null, supabaseUrl: string): string {
   if (!ref) return '';
   // Anything that isn't "<user id>/..." is returned as is, and safeUrl rejects it later.
   if (!STORAGE_PATH.test(ref)) return ref;
   return `${supabaseUrl}/storage/v1/object/public/${BUCKET}/${ref}`;
 }
+
+/** A blurhash belongs to an uploaded picture only; an outside link never has one. */
+export const blurhashFor = (ref: string | null, hash: string | null): string =>
+  ref && hash && isStoragePath(ref) && isBlurhash(hash) ? hash : '';
 
 const byPosition = <T extends { position: number }>(a: T, b: T) => a.position - b.position;
 
@@ -40,14 +50,13 @@ export function toDataset(row: FellowRow, supabaseUrl: string): Dataset {
     id: row.slug,
     name: row.name,
     firstName: row.first_name,
-    headlineRole: row.headline_role ?? '',
-    headlineHighlight: row.headline_highlight ?? '',
-    statusText: row.status_text ?? '',
-    intro: row.intro ?? '',
+    page: parsePage(row.page) ?? defaultPage(row.first_name),
+    theme: parseTheme(row.theme),
     school: row.school ?? '',
     city: row.city ?? '',
     cohort: row.cohort ?? '',
     photoUrl: imageRef(row.photo_path, supabaseUrl),
+    photoBlurhash: blurhashFor(row.photo_path, row.photo_blurhash),
   };
 
   const resources: Resource[] = [...row.resources].sort(byPublished).map((r) => {
@@ -59,8 +68,16 @@ export function toDataset(row: FellowRow, supabaseUrl: string): Dataset {
     const media: MediaItem[] = [];
     for (const m of [...r.resource_media].sort(byPosition)) {
       const url = safeUrl(imageRef(m.url, supabaseUrl));
-      if (url)
-        media.push({ url, caption: m.caption ?? '', hint: m.type_hint ?? '', order: m.position });
+      if (url) {
+        media.push({
+          url,
+          caption: m.caption ?? '',
+          hint: m.type_hint ?? '',
+          order: m.position,
+          blurhash: blurhashFor(m.url, m.blurhash),
+          ratio: cleanRatio(m.ratio),
+        });
+      }
     }
     return {
       id: r.slug,
@@ -71,6 +88,7 @@ export function toDataset(row: FellowRow, supabaseUrl: string): Dataset {
       length: r.length ?? '',
       tags: r.tags,
       coverUrl: imageRef(r.cover_path, supabaseUrl),
+      coverBlurhash: blurhashFor(r.cover_path, r.cover_blurhash),
       summary: r.summary ?? '',
       description: r.description ?? '',
       driveLink: r.drive_link ?? '',

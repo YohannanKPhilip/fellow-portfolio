@@ -1,24 +1,29 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { config } from '../config';
+import { isReservedSlug } from '../lib/slug';
 import { DataContext, type DataState } from './dataContext';
 import { loadData } from './loadData';
 
-/** The fellow in the address ("/yohannan/r/..."), or the default fellow on the home page. */
+/** The fellow in the address ("/yohannan/r/..."); empty on the home page. */
 function fellowFromPath(pathname: string): string {
-  return pathname.split('/')[1] || config.defaultFellow;
+  return pathname.split('/')[1] ?? '';
 }
 
 /**
  * Loads the data and shares it with every page. The sheet is loaded once; Supabase
  * loads one fellow's page at a time, so it reloads when the address moves to another fellow.
+ * Site pages such as /login and /me aren't fellows, so they don't load anything.
  */
 export function DataProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const slug = config.dataSource === 'supabase' ? fellowFromPath(pathname) : '';
+  const isSupabase = config.dataSource === 'supabase';
+  const first = fellowFromPath(pathname);
+  const slug = isSupabase ? (!first || isReservedSlug(first) ? undefined : first) : '';
   const [state, setState] = useState<DataState>({ status: 'loading' });
 
   useEffect(() => {
+    if (slug === undefined) return;
     const controller = new AbortController();
     setState({ status: 'loading' });
     loadData(controller.signal, slug || undefined)

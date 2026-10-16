@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { imageUrl } from '../lib/links';
+import { BlurImg } from './BlurImg';
 
 /**
  * A resource's cover picture. Renders nothing when there is no cover link or the
@@ -9,11 +10,14 @@ export function Cover({
   url,
   className,
   width = 800,
+  blurhash,
   onFail,
 }: {
   url: string;
   className: string;
   width?: number;
+  /** Blurred stand-in shown until the picture has loaded. */
+  blurhash?: string;
   /** Called when the picture can't be loaded, so the caller can show something else. */
   onFail?: () => void;
 }) {
@@ -22,9 +26,10 @@ export function Cover({
   if (!src || failed) return null;
   return (
     <div className={className}>
-      <img
+      <BlurImg
         src={src}
         alt=""
+        blurhash={blurhash}
         loading="lazy"
         decoding="async"
         onError={() => {

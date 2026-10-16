@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { cleanRatio } from '../lib/blurhash';
 import { describeMedia, type MediaView } from '../lib/media';
 import type { MediaItem } from '../types';
+import { BlurImg } from './BlurImg';
 
-function Tile({ view, caption }: { view: MediaView; caption: string }) {
+function Tile({ view, item }: { view: MediaView; item: MediaItem }) {
+  const { caption } = item;
   const [playing, setPlaying] = useState(false);
   const [thumbFailed, setThumbFailed] = useState(false);
   const label = caption || `${view.source} media`;
@@ -21,7 +24,14 @@ function Tile({ view, caption }: { view: MediaView; caption: string }) {
         rel="noopener noreferrer"
         className="media__frame media__frame--auto"
       >
-        <img src={view.thumbUrl} alt={caption} loading="lazy" decoding="async" />
+        <BlurImg
+          src={view.thumbUrl}
+          alt={caption}
+          blurhash={item.blurhash}
+          ratio={item.ratio}
+          loading="lazy"
+          decoding="async"
+        />
       </a>
     );
   } else if (view.kind === 'link') {
@@ -88,7 +98,8 @@ function Tile({ view, caption }: { view: MediaView; caption: string }) {
 }
 
 /** Rough height of a tile (as a multiple of its width) so columns can be balanced without measuring. */
-const estimateHeight = (view: MediaView) => (view.kind === 'image' ? 0.75 : 1 / view.ratio) + 0.2;
+const estimateHeight = (view: MediaView, item: MediaItem) =>
+  (view.kind === 'image' ? 1 / (cleanRatio(item.ratio) || 4 / 3) : 1 / view.ratio) + 0.2;
 
 /** Two columns when there is room, one when narrow. */
 function useColumnCount(ref: React.RefObject<HTMLElement>, wanted: number, active: boolean) {
@@ -106,13 +117,16 @@ function useColumnCount(ref: React.RefObject<HTMLElement>, wanted: number, activ
 }
 
 /** Pinterest-style layout: each tile goes into the currently shortest column. */
-function distribute<T extends { view: MediaView }>(tiles: T[], columns: number): T[][] {
+function distribute<T extends { view: MediaView; item: MediaItem }>(
+  tiles: T[],
+  columns: number,
+): T[][] {
   const cols: T[][] = Array.from({ length: columns }, () => []);
   const heights: number[] = Array(columns).fill(0);
   for (const tile of tiles) {
     const shortest = heights.indexOf(Math.min(...heights));
     cols[shortest]?.push(tile);
-    heights[shortest] = (heights[shortest] ?? 0) + estimateHeight(tile.view);
+    heights[shortest] = (heights[shortest] ?? 0) + estimateHeight(tile.view, tile.item);
   }
   return cols;
 }
@@ -133,7 +147,7 @@ export function MediaGallery({ items }: { items: MediaItem[] }) {
         {columns.map((col, i) => (
           <div className="media-col" key={i}>
             {col.map(({ item, view }) => (
-              <Tile key={item.url} view={view} caption={item.caption} />
+              <Tile key={item.url} view={view} item={item} />
             ))}
           </div>
         ))}

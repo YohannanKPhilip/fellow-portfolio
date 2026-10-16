@@ -7,14 +7,16 @@ Do these in the Supabase dashboard for the **fellow-portfolio** project
 
 Authentication > **URL Configuration**
 
-- **Site URL**: `https://yohannankphilip.github.io/fellow-portfolio/`
+- **Site URL**: `https://yohannankphilip.github.io/`
 - **Redirect URLs** (add both):
-  - `https://yohannankphilip.github.io/fellow-portfolio/auth/callback`
-  - `http://localhost:5173/fellow-portfolio/auth/callback`
+  - `https://yohannankphilip.github.io/auth/callback`
+  - `http://localhost:5173/auth/callback`
 
 Save. The sign-in link in the email goes to the address the site asks for, and Supabase refuses any address not in this list.
 
-## 2. Email templates (needed)
+## 2. Email templates (only after custom SMTP, Phase 6)
+
+> Supabase does not let you edit email templates until a custom SMTP service is connected. **Skip this step while testing.** The default email still works: its link goes through Supabase and returns to `/auth/callback`, which the site handles. The only differences are that the default email has no 6-digit code, and the link can be used up by an email scanner. Set up the templates below when you connect SMTP.
 
 Authentication > **Email Templates**. Edit **both** "Confirm signup" (a new person's first email) and "Magic Link" (returning people). Give both the same subject and body.
 
@@ -26,7 +28,10 @@ Authentication > **Email Templates**. Edit **both** "Confirm signup" (a new pers
 <p>Click to sign in to Fellow Portfolio:</p>
 <p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">Sign in</a></p>
 <p>Or type this code on the sign-in page: <strong>{{ .Token }}</strong></p>
-<p>The link and the code work once and expire in 1 hour. If you didn't ask for this, you can ignore this email.</p>
+<p>
+  The link and the code work once and expire in 1 hour. If you didn't ask for this, you can ignore
+  this email.
+</p>
 ```
 
 Why this shape:

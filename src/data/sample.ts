@@ -1,3 +1,4 @@
+import { legacyPage } from '../lib/page';
 import type { Dataset } from '../types';
 
 /**
@@ -10,11 +11,15 @@ export const sampleDataset: Dataset = {
       id: 'yohannan',
       name: 'Yohannan K Philip',
       firstName: 'Yohannan',
-      headlineRole: 'Grade 5 Teacher',
-      headlineHighlight: 'TFI Fellow',
-      statusText: 'Teaching in Bengaluru',
-      intro:
-        'I teach all subjects to 37 students at Sunshine Primary & High School. Here I share the lessons, worksheets and classroom systems that work in my room.',
+      page: legacyPage({
+        firstName: 'Yohannan',
+        role: 'Grade 5 Teacher',
+        highlight: 'TFI Fellow',
+        status: 'Teaching in Bengaluru',
+        intro:
+          'I teach all subjects to 37 students at Sunshine Primary & High School. Here I share the lessons, worksheets and classroom systems that work in my room.',
+      }),
+      theme: {},
       school: 'Sunshine Primary & High School',
       city: 'Bengaluru',
       cohort: '2026',

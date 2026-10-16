@@ -23,7 +23,7 @@ The UI never talks to Google directly. To move to a database later, such as Supa
 
 ## Routing
 
-`react-router-dom` with real paths (`/yohannan/r/...`). GitHub Pages has no server routing, so `scripts/spa-fallback.mjs` copies `index.html` to `404.html`. Any deep link then loads the app, which reads the address and shows the right page. `VITE_BASE` sets the path prefix (`/fellow-portfolio/`).
+`react-router-dom` with real paths (`/yohannan/r/...`). GitHub Pages has no server routing, so `scripts/spa-fallback.mjs` copies `index.html` to `404.html`. Any deep link then loads the app, which reads the address and shows the right page. `VITE_BASE` sets the path prefix (`/` when the repo is named `<user>.github.io` or uses a custom domain).
 
 ## Safety
 
