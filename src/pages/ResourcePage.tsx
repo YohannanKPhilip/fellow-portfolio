@@ -1,11 +1,16 @@
 import { Link, useParams } from 'react-router-dom';
+import { Avatar } from '../components/Avatar';
 import { Cover } from '../components/Cover';
 import { MediaGallery } from '../components/MediaGallery';
+import { ResourceCard } from '../components/ResourceCard';
 import { SubjectTag } from '../components/SubjectTag';
 import { LoadError, Loading, NotFoundView } from '../components/StatusView';
 import { useData } from '../data/dataContext';
 import { safeUrl } from '../lib/links';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
+
+/** How many other resources to show at the bottom of a resource page. */
+const MORE_COUNT = 3;
 
 export function ResourcePage() {
   const { fellowId, resourceId } = useParams();
@@ -22,8 +27,12 @@ export function ResourcePage() {
   if (state.status === 'error') return <LoadError message={state.message} />;
   if (!resource) return <NotFoundView what="resource" />;
 
-  const prev = all[(index - 1 + all.length) % all.length];
-  const next = all[(index + 1) % all.length];
+  const fellow =
+    state.status === 'ready'
+      ? state.data.dataset.fellows.find((f) => f.id === resource.fellowId)
+      : undefined;
+  // Newest first: rows added to the bottom of the sheet are the most recent.
+  const others = all.filter((r) => r.id !== resource.id).reverse();
   const driveLink = safeUrl(resource.driveLink);
   const facts: [string, string][] = [
     ['Grade', resource.grade],
@@ -37,33 +46,24 @@ export function ResourcePage() {
         ← All resources
       </Link>
 
-      <header className="detail__head">
-        <div className="tagrow">
-          <SubjectTag subject={resource.subject} raised />
-        </div>
-        <h1 className="detail__title">{resource.title}</h1>
-        <p className="detail__lede">{resource.summary}</p>
-        {resource.tags.length > 0 && (
-          <ul className="chips chips--head" aria-label="Tags">
-            {resource.tags.map((t) => (
-              <li key={t}>{t}</li>
-            ))}
-          </ul>
-        )}
-      </header>
-
-      <Cover url={resource.coverUrl} className="cover cover--detail" width={1400} />
-
-      <dl className="facts">
-        {facts.map(([label, value]) => (
-          <div className="fact" key={label}>
-            <dt>{label}</dt>
-            <dd>{value || '—'}</dd>
-          </div>
-        ))}
-      </dl>
-
       <div className="detail__body">
+        <header className="detail__head">
+          <div className="tagrow">
+            <SubjectTag subject={resource.subject} raised />
+          </div>
+          <h1 className="detail__title">{resource.title}</h1>
+          <p className="detail__lede">{resource.summary}</p>
+          {resource.tags.length > 0 && (
+            <ul className="chips chips--head" aria-label="Tags">
+              {resource.tags.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+          )}
+        </header>
+
+        <Cover url={resource.coverUrl} className="cover cover--detail" width={1000} />
+
         <section className="panel detail__desc">
           <h2 className="panel__title">Description</h2>
           <p>{resource.description || resource.summary}</p>
@@ -73,7 +73,7 @@ export function ResourcePage() {
         </div>
 
         <aside className="detail__side">
-          <section className="panel panel--sticky">
+          <section className="panel">
             <h2 className="panel__title">Use this resource</h2>
             {driveLink ? (
               <a
@@ -120,19 +120,37 @@ export function ResourcePage() {
               Free to use and adapt in your classroom. If you change it, share your version back.
             </p>
           </section>
+          <section className="panel">
+            <h2 className="panel__title">Details</h2>
+            <dl className="facts">
+              {facts.map(([label, value]) => (
+                <div className="fact" key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value || '—'}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
         </aside>
       </div>
 
-      {all.length > 1 && prev && next && (
-        <nav className="pager" aria-label="More resources">
-          <Link to={`/${prev.fellowId}/r/${prev.id}`}>
-            ← Previous
-            <b>{prev.title}</b>
+      {fellow && others.length > 0 && (
+        <section className="more" aria-labelledby="more-title">
+          <h2 className="more__title" id="more-title">
+            More from <Avatar name={fellow.firstName} photoUrl={fellow.photoUrl} />{' '}
+            {fellow.firstName}
+          </h2>
+          <div className="grid">
+            {others.slice(0, MORE_COUNT).map((r) => (
+              <ResourceCard key={r.id} resource={r} />
+            ))}
+          </div>
+          <Link className="more__all" to={`/${fellow.id}`}>
+            {others.length > MORE_COUNT
+              ? `See all ${others.length + 1} resources →`
+              : 'See all resources →'}
           </Link>
-          <Link to={`/${next.fellowId}/r/${next.id}`} className="pager__next">
-            Next →<b>{next.title}</b>
-          </Link>
-        </nav>
+        </section>
       )}
     </article>
   );

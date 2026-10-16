@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { describeMedia, type MediaView } from '../lib/media';
 import type { MediaItem } from '../types';
 
@@ -19,8 +19,7 @@ function Tile({ view, caption }: { view: MediaView; caption: string }) {
         href={view.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="media__frame"
-        style={frameStyle}
+        className="media__frame media__frame--auto"
       >
         <img src={view.thumbUrl} alt={caption} loading="lazy" decoding="async" />
       </a>
@@ -88,18 +87,55 @@ function Tile({ view, caption }: { view: MediaView; caption: string }) {
   );
 }
 
+/** Rough height of a tile (as a multiple of its width) so columns can be balanced without measuring. */
+const estimateHeight = (view: MediaView) => (view.kind === 'image' ? 0.75 : 1 / view.ratio) + 0.2;
+
+/** Two columns when there is room, one when narrow. */
+function useColumnCount(ref: React.RefObject<HTMLElement>, wanted: number, active: boolean) {
+  const [count, setCount] = useState(wanted);
+  useEffect(() => {
+    const el = ref.current;
+    if (!active || !el) return;
+    const update = () => setCount(el.clientWidth >= 460 ? wanted : 1);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, wanted, active]);
+  return count;
+}
+
+/** Pinterest-style layout: each tile goes into the currently shortest column. */
+function distribute<T extends { view: MediaView }>(tiles: T[], columns: number): T[][] {
+  const cols: T[][] = Array.from({ length: columns }, () => []);
+  const heights: number[] = Array(columns).fill(0);
+  for (const tile of tiles) {
+    const shortest = heights.indexOf(Math.min(...heights));
+    cols[shortest]?.push(tile);
+    heights[shortest] = (heights[shortest] ?? 0) + estimateHeight(tile.view);
+  }
+  return cols;
+}
+
 export function MediaGallery({ items }: { items: MediaItem[] }) {
+  const ref = useRef<HTMLDivElement>(null);
   const tiles = items.flatMap((item) => {
     const view = describeMedia(item.url, item.hint);
     return view ? [{ item, view }] : [];
   });
+  const fit = useColumnCount(ref, 2, tiles.length > 0);
   if (tiles.length === 0) return null;
+  const columns = distribute(tiles, tiles.length < 2 ? 1 : fit);
   return (
     <section className="panel">
       <h2 className="panel__title">In the classroom</h2>
-      <div className="media-grid">
-        {tiles.map(({ item, view }) => (
-          <Tile key={item.url} view={view} caption={item.caption} />
+      <div className="media-cols" ref={ref}>
+        {columns.map((col, i) => (
+          <div className="media-col" key={i}>
+            {col.map(({ item, view }) => (
+              <Tile key={item.url} view={view} caption={item.caption} />
+            ))}
+          </div>
         ))}
       </div>
     </section>

@@ -9,17 +9,29 @@ export function Cover({
   url,
   className,
   width = 800,
+  onFail,
 }: {
   url: string;
   className: string;
   width?: number;
+  /** Called when the picture can't be loaded, so the caller can show something else. */
+  onFail?: () => void;
 }) {
   const [failed, setFailed] = useState(false);
   const src = imageUrl(url, width);
   if (!src || failed) return null;
   return (
     <div className={className}>
-      <img src={src} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)} />
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        onError={() => {
+          setFailed(true);
+          onFail?.();
+        }}
+      />
     </div>
   );
 }
