@@ -53,12 +53,12 @@ export interface Dataset {
 }
 
 /** Where the data on screen came from. */
-export type DataOrigin = 'sheet' | 'cache' | 'sample';
+export type DataOrigin = 'sheet' | 'supabase' | 'cache' | 'sample';
 
 export interface LoadedData {
   dataset: Dataset;
   origin: DataOrigin;
-  /** ISO time the data was fetched from the sheet (sheet and cache only). */
+  /** ISO time the data was fetched from the live source (not set for sample data). */
   fetchedAt?: string;
   warnings: string[];
 }

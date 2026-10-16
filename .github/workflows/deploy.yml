@@ -33,6 +33,11 @@ jobs:
       - run: npm run build
         env:
           # Set these under Settings > Secrets and variables > Actions > Variables.
+          # VITE_DATA_SOURCE is "sheet" unless set to "supabase", so the live site keeps reading the sheet.
+          # The publishable key is meant to be public, so it is a Variable, not a Secret.
+          VITE_DATA_SOURCE: ${{ vars.VITE_DATA_SOURCE }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_SHEET_ID: ${{ vars.VITE_SHEET_ID }}
           VITE_DEFAULT_FELLOW: ${{ vars.VITE_DEFAULT_FELLOW || 'yohannan' }}
           VITE_BASE: ${{ vars.VITE_BASE || format('/{0}/', github.event.repository.name) }}
