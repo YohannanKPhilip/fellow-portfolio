@@ -3,7 +3,7 @@ import type { Dataset, LoadedData } from '../types';
 import { loadFromGoogleSheet } from './googleSheets';
 import { sampleDataset } from './sample';
 
-const CACHE_KEY = 'fellow-portfolio:data:v1';
+const CACHE_KEY = 'fellow-portfolio:data:v2';
 
 interface CacheEntry {
   fetchedAt: string;

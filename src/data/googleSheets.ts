@@ -30,10 +30,15 @@ export async function loadFromGoogleSheet(
   sheetId: string,
   signal?: AbortSignal,
 ): Promise<BuildResult> {
-  const [fellows, resources, files] = await Promise.all([
+  const [fellows, resources, files, media] = await Promise.all([
     fetchTab(sheetId, TABS.fellows, signal),
     fetchTab(sheetId, TABS.resources, signal),
     fetchTab(sheetId, TABS.files, signal),
+    // The media tab is optional: a sheet without one still works.
+    fetchTab(sheetId, TABS.media, signal).catch((err: unknown) => {
+      if (signal?.aborted) throw err;
+      return [];
+    }),
   ]);
-  return buildDataset(fellows, resources, files);
+  return buildDataset(fellows, resources, files, media);
 }

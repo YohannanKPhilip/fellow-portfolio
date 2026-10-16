@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildDataset } from '../mappers';
+import { buildDataset, parseTags } from '../mappers';
 
 const fellow = (id: string, status = 'Published') => ({
   fellow_id: id,
@@ -42,13 +42,23 @@ describe('buildDataset', () => {
 
   it('rejects invalid and duplicate IDs', () => {
     const { dataset, warnings } = buildDataset(
-      [fellow('Bad ID'), fellow('asha'), fellow('asha')],
+      [fellow('bad/id!'), fellow('asha'), fellow('asha')],
       [resource('asha-one', 'asha'), resource('asha-one', 'asha')],
       [],
     );
     expect(dataset.fellows.map((f) => f.id)).toEqual(['asha']);
     expect(dataset.resources).toHaveLength(1);
     expect(warnings).toHaveLength(3);
+  });
+
+  it('forgives capitals and spaces in IDs', () => {
+    const { dataset } = buildDataset(
+      [fellow('Asha')],
+      [resource('Asha-String Pen', 'ASHA')],
+      [{ resource_id: 'asha-string-pen', order: '1', file_name: 'Lesson Plan', file_link: '' }],
+    );
+    expect(dataset.resources.map((r) => r.id)).toEqual(['asha-string-pen']);
+    expect(dataset.resources[0]?.files).toHaveLength(1);
   });
 
   it('attaches files to their resource, sorted by order', () => {
@@ -76,5 +86,46 @@ describe('buildDataset', () => {
     );
     expect(dataset.fellows[0]?.firstName).toBe('Asha');
     expect(dataset.resources[0]?.subject).toBe('Other');
+  });
+
+  it('reads tags, description, cover and media', () => {
+    const { dataset } = buildDataset(
+      [fellow('asha')],
+      [
+        {
+          ...resource('asha-one', 'asha'),
+          tags: 'NCERT, ncert, Maths Mela ,Ch 2',
+          cover_url: 'https://example.com/c.jpg',
+          about: 'Old column name',
+        },
+      ],
+      [],
+      [
+        { resource_id: 'Asha-One', order: '2', url: 'https://youtu.be/dQw4w9WgXcQ', caption: 'B' },
+        { resource_id: 'asha-one', order: '1', url: 'https://example.com/a.jpg', type: 'Image' },
+        { resource_id: 'asha-one', order: '3', url: 'javascript:alert(1)', caption: 'bad' },
+        { resource_id: 'ghost', order: '1', url: 'https://example.com/z.jpg' },
+      ],
+    );
+    const r = dataset.resources[0];
+    expect(r?.tags).toEqual(['NCERT', 'Maths Mela', 'Ch 2']);
+    expect(r?.coverUrl).toBe('https://example.com/c.jpg');
+    expect(r?.description).toBe('Old column name');
+    expect(r?.media.map((m) => m.caption)).toEqual(['', 'B']);
+    expect(r?.media[0]?.hint).toBe('image');
+  });
+
+  it('gives resources without tags, cover or media empty values', () => {
+    const { dataset } = buildDataset([fellow('asha')], [resource('asha-one', 'asha')], []);
+    const r = dataset.resources[0];
+    expect([r?.tags, r?.coverUrl, r?.media]).toEqual([[], '', []]);
+  });
+});
+
+describe('parseTags', () => {
+  it('splits, trims, dedupes and caps', () => {
+    expect(parseTags(' a , b;c\nA, ,d')).toEqual(['a', 'b', 'c', 'd']);
+    expect(parseTags(undefined)).toEqual([]);
+    expect(parseTags('1,2,3,4,5,6,7,8,9,10')).toHaveLength(8);
   });
 });

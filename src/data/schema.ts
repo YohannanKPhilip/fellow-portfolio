@@ -6,6 +6,7 @@ export const TABS = {
   fellows: 'fellows',
   resources: 'resources',
   files: 'files',
+  media: 'media',
 } as const;
 
 export const COLUMNS = {
@@ -30,16 +31,15 @@ export const COLUMNS = {
     'title',
     'subject',
     'grade',
-    'board',
-    'chapter',
     'length',
+    'tags',
+    'cover_url',
     'summary',
-    'about',
-    'in_my_classroom',
-    'what_id_change',
+    'description',
     'drive_link',
   ],
   files: ['resource_id', 'order', 'file_name', 'file_link'],
+  media: ['resource_id', 'order', 'url', 'caption', 'type'],
 } as const;
 
 /** IDs are lowercase letters, digits and hyphens, e.g. "yohannan-fractions-rotis". */

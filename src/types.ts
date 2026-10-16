@@ -20,6 +20,15 @@ export interface ResourceFile {
   order: number;
 }
 
+/** A photo, video or embed showing the resource in use. One row of the "media" tab. */
+export interface MediaItem {
+  url: string;
+  caption: string;
+  /** Optional hint from the sheet: "image" or "video". Empty means auto-detect. */
+  hint: string;
+  order: number;
+}
+
 /** A resource a fellow shares. One row of the "resources" tab. */
 export interface Resource {
   id: string;
@@ -27,15 +36,15 @@ export interface Resource {
   title: string;
   subject: string;
   grade: string;
-  board: string;
-  chapter: string;
   length: string;
+  tags: string[];
+  /** Cover image link. Empty means the resource has no cover and none is shown. */
+  coverUrl: string;
   summary: string;
-  about: string;
-  inMyClassroom: string;
-  whatIdChange: string;
+  description: string;
   driveLink: string;
   files: ResourceFile[];
+  media: MediaItem[];
 }
 
 export interface Dataset {

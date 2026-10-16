@@ -1,31 +1,30 @@
 import { Link } from 'react-router-dom';
 import type { Resource } from '../types';
+import { Cover } from './Cover';
 import { SubjectTag } from './SubjectTag';
 
-const MAX_CHIPS = 4;
-
-/** Short label for a file chip: drops anything in brackets. */
-const chipLabel = (name: string) => name.replace(/\s*\(.*\)\s*$/, '');
+const MAX_TAGS = 3;
 
 export function ResourceCard({ resource }: { resource: Resource }) {
-  const { files } = resource;
-  const extra = files.length - MAX_CHIPS;
+  const { tags } = resource;
+  const extra = tags.length - MAX_TAGS;
   return (
     <Link className="card" to={`/${resource.fellowId}/r/${resource.id}`}>
+      <Cover url={resource.coverUrl} className="cover cover--card" width={700} />
       <div className="tagrow">
         <SubjectTag subject={resource.subject} />
         <span className="meta">
-          {[resource.board, resource.chapter].filter(Boolean).join(' · ')}
+          {[resource.grade, resource.length].filter(Boolean).join(' · ')}
         </span>
       </div>
       <h3 className="card__title">{resource.title}</h3>
       <p className="card__summary">{resource.summary}</p>
-      {files.length > 0 && (
-        <ul className="chips" aria-label="What's inside">
-          {files.slice(0, MAX_CHIPS).map((f) => (
-            <li key={f.name}>{chipLabel(f.name)}</li>
+      {tags.length > 0 && (
+        <ul className="chips" aria-label="Tags">
+          {tags.slice(0, MAX_TAGS).map((t) => (
+            <li key={t}>{t}</li>
           ))}
-          {extra > 0 && <li>+{extra} more</li>}
+          {extra > 0 && <li>+{extra}</li>}
         </ul>
       )}
       <span className="card__more">View details →</span>

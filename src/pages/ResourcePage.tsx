@@ -1,4 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
+import { Cover } from '../components/Cover';
+import { MediaGallery } from '../components/MediaGallery';
 import { SubjectTag } from '../components/SubjectTag';
 import { LoadError, Loading, NotFoundView } from '../components/StatusView';
 import { useData } from '../data/dataContext';
@@ -26,7 +28,6 @@ export function ResourcePage() {
   const facts: [string, string][] = [
     ['Grade', resource.grade],
     ['Subject', resource.subject],
-    ['Source', resource.board],
     ['Length', resource.length],
   ];
 
@@ -39,13 +40,19 @@ export function ResourcePage() {
       <header className="detail__head">
         <div className="tagrow">
           <SubjectTag subject={resource.subject} raised />
-          <span className="meta">
-            {[resource.board, resource.chapter].filter(Boolean).join(' · ')}
-          </span>
         </div>
         <h1 className="detail__title">{resource.title}</h1>
         <p className="detail__lede">{resource.summary}</p>
+        {resource.tags.length > 0 && (
+          <ul className="chips chips--head" aria-label="Tags">
+            {resource.tags.map((t) => (
+              <li key={t}>{t}</li>
+            ))}
+          </ul>
+        )}
       </header>
+
+      <Cover url={resource.coverUrl} className="cover cover--detail" width={1400} />
 
       <dl className="facts">
         {facts.map(([label, value]) => (
@@ -57,38 +64,12 @@ export function ResourcePage() {
       </dl>
 
       <div className="detail__body">
-        <div className="detail__main">
-          <section className="panel">
-            <h2 className="panel__title">About this resource</h2>
-            <p>{resource.about || resource.summary}</p>
-          </section>
-          {resource.files.length > 0 && (
-            <section className="panel">
-              <h2 className="panel__title">What's inside ({resource.files.length})</h2>
-              <ul className="files">
-                {resource.files.map((f) => {
-                  const href = safeUrl(f.link);
-                  return (
-                    <li key={f.name}>
-                      <span className="files__name">{f.name}</span>
-                      {href ? (
-                        <a
-                          className="files__link"
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Open ↗
-                        </a>
-                      ) : (
-                        <span className="files__link files__link--pending">Link coming</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          )}
+        <section className="panel detail__desc">
+          <h2 className="panel__title">Description</h2>
+          <p>{resource.description || resource.summary}</p>
+        </section>
+        <div className="detail__media">
+          <MediaGallery items={resource.media} />
         </div>
 
         <aside className="detail__side">
@@ -108,26 +89,38 @@ export function ResourcePage() {
                 Drive link coming
               </span>
             )}
+            {resource.files.length > 0 && (
+              <>
+                <h3 className="panel__sub">What's inside ({resource.files.length})</h3>
+                <ul className="files">
+                  {resource.files.map((f) => {
+                    const href = safeUrl(f.link);
+                    return (
+                      <li key={f.name}>
+                        <span className="files__name">{f.name}</span>
+                        {href ? (
+                          <a
+                            className="files__link"
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Open ↗
+                          </a>
+                        ) : (
+                          <span className="files__link files__link--pending">Link coming</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            )}
             <p className="panel__note">
               Free to use and adapt in your classroom. If you change it, share your version back.
             </p>
           </section>
         </aside>
-      </div>
-
-      <div className="reflect">
-        <section className="panel">
-          <span className="label">In my classroom</span>
-          <p className={resource.inMyClassroom ? undefined : 'pending'}>
-            {resource.inMyClassroom || 'Reflection coming soon.'}
-          </p>
-        </section>
-        <section className="panel">
-          <span className="label label--accent">What I'd change</span>
-          <p className={resource.whatIdChange ? undefined : 'pending'}>
-            {resource.whatIdChange || 'Reflection coming soon.'}
-          </p>
-        </section>
       </div>
 
       {all.length > 1 && prev && next && (
