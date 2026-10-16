@@ -2,7 +2,7 @@
   "name": "fellow-portfolio",
   "private": true,
   "version": "0.1.0",
-  "description": "Fellow Portfolio: TFI fellows publish their classroom resources and build a teaching portfolio. Part of T Resource.",
+  "description": "Fellow Portfolio: TFI fellows publish their classroom resources and build a teaching portfolio.",
   "type": "module",
   "engines": {
     "node": ">=20"

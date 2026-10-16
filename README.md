@@ -2,7 +2,7 @@
 
 A portfolio site where TFI fellows share the classroom resources they've made: lesson plans, worksheets and classroom systems. Each fellow gets their own page, and every resource has a detail page with what's inside, how it went in class, and what the fellow would change.
 
-It's the first piece of **T Resource**, a sharing space for TFI fellows.
+It's a sharing space for TFI fellows, starting with one fellow's portfolio.
 
 - **Live data from Google Sheets.** Fellows and resources live in one Google Sheet. Edit the sheet and the site updates on the next page load, with no redeploy.
 - **Many fellows.** Each fellow has a page at `/<fellow_id>`. Only rows marked `Published` appear.
@@ -49,7 +49,7 @@ To use your real sheet, copy `.env.example` to `.env.local` and fill in `VITE_SH
 
 ```
 .github/workflows/   CI on pull requests, deploy to Pages on push to main
-data-template/       Starting content for the Google Sheet (xlsx + one CSV per tab)
+data-template/       Starting content for the Google Sheet (CSV per tab, plus paste/ TSVs for pasting into Sheets)
 docs/                Setup and architecture guides
 public/              Static files copied as-is (favicon)
 scripts/             Build helpers

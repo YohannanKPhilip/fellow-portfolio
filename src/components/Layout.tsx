@@ -20,7 +20,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <main id="main">{children}</main>
       <footer className="footer">
         <span>{config.siteName}</span>
-        <span>Part of {config.networkName}, a sharing space for TFI fellows</span>
+        <span>A sharing space for TFI fellows</span>
       </footer>
     </div>
   );

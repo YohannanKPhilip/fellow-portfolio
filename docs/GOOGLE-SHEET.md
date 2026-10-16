@@ -2,12 +2,16 @@
 
 All site content lives in one Google Sheet with three data tabs. The site reads them by name, so keep the tab names and header rows exactly as below. Headers are not case-sensitive, and column order doesn't matter.
 
-## Create the sheet
+## Set up the sheet
 
-1. Open `data-template/fellow-portfolio-data.xlsx` (also in the **T Resource** folder in Drive).
-2. In Google Drive, open it and choose **File > Save as Google Sheets**.
+Any native Google Sheet works, including one you made yourself. You need three tabs named exactly `fellows`, `resources` and `files`.
+
+1. Open your sheet. Rename the first tab (`Sheet1`) to `fellows`. Use the **+** at the bottom left to add two more tabs named `resources` and `files`.
+2. In the `fellows` tab, click cell **A1**, then paste the contents of `data-template/paste/fellows.tsv`. Tab-separated text lands in separate columns on its own. Do the same for `resources` and `files`.
 3. Click **Share**, set **General access** to **Anyone with the link**, role **Viewer**.
 4. Copy the ID from the address bar (`docs.google.com/spreadsheets/d/<ID>/edit`) into `VITE_SHEET_ID`.
+
+Do not put emails, phone numbers or student names in this sheet. Anyone with the link can read every tab.
 
 ## Tabs
 
