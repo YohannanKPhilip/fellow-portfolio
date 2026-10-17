@@ -286,10 +286,11 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
               <input
                 className="tag tag--raised tag-input"
                 list="subjects"
-                aria-label="Subject"
+                aria-label="Subject (required)"
+                aria-required="true"
                 aria-invalid={Boolean(errors.subject)}
                 maxLength={LIMITS.short}
-                placeholder="Subject"
+                placeholder="Subject *"
                 value={draft.subject}
                 onChange={(e) => set('subject', e.target.value)}
               />
@@ -299,11 +300,12 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
                 ))}
               </datalist>
             </div>
+            {fieldError(errors.subject)}
             <InlineText
               className="detail__title"
-              label="Title"
+              label="Title (required)"
               singleLine
-              placeholder="Fractions with rotis"
+              placeholder="Title * (for example, Fractions with rotis)"
               maxLength={LIMITS.title}
               invalid={Boolean(errors.title)}
               value={draft.title}
@@ -373,16 +375,21 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
             <section className="panel">
               <h2 className="panel__title">Use this resource</h2>
               <div className="field">
-                <label htmlFor="drive">Google Drive link</label>
+                <label htmlFor="drive">Resource link *</label>
                 <input
                   id="drive"
                   inputMode="url"
-                  placeholder="https://drive.google.com/…"
+                  required
+                  placeholder="https://…"
                   aria-invalid={Boolean(errors.driveLink)}
                   value={draft.driveLink}
                   onChange={(e) => set('driveLink', e.target.value)}
                 />
-                <p className="form__hint">Set sharing to "anyone with the link can view".</p>
+                <p className="form__hint">
+                  Any link: Google Drive, Notion, a website, a video or a document. Make sure
+                  anyone with the link can open it (for Drive, set sharing to "anyone with the
+                  link can view").
+                </p>
                 {fieldError(errors.driveLink)}
               </div>
               <h3 className="panel__sub">What's inside</h3>
@@ -411,11 +418,14 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
                   <dd>
                     <input
                       id="grade"
-                      maxLength={LIMITS.short}
-                      placeholder="Grade 5"
+                      inputMode="numeric"
+                      maxLength={8}
+                      placeholder="5 or 5-7"
+                      aria-invalid={Boolean(errors.grade)}
                       value={draft.grade}
                       onChange={(e) => set('grade', e.target.value)}
                     />
+                    {fieldError(errors.grade)}
                   </dd>
                 </div>
                 <div className="fact">
