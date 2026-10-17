@@ -84,7 +84,9 @@ export function ResourcePage() {
 
         <section className="panel detail__desc">
           <h2 className="panel__title">Description</h2>
-          <p>{resource.description || resource.summary}</p>
+          <p className="detail__desctext">
+            {resource.description || resource.summary}
+          </p>
         </section>
         <div className="detail__media">
           <MediaGallery items={resource.media} />
@@ -100,11 +102,11 @@ export function ResourcePage() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Open in Google Drive
+                Open resource
               </a>
             ) : (
               <span className="button button--block button--disabled" aria-disabled="true">
-                Drive link coming
+                Link coming soon
               </span>
             )}
             {resource.files.length > 0 && (
