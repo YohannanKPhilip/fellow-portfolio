@@ -740,6 +740,11 @@ a {
   margin-bottom: 16px;
 }
 
+/* Keep the line and paragraph breaks the fellow typed in the editor. */
+.detail__desc p.detail__desctext {
+  white-space: pre-line;
+}
+
 .detail__media {
   grid-area: media;
   min-width: 0;
