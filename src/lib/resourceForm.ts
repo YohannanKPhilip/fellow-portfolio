@@ -125,6 +125,12 @@ export function filesFromNames(names: string[], previous: FileDraft[]): FileDraf
 }
 
 const isHttps = (value: string) => /^https:\/\//i.test(value.trim());
+
+/** A grade is a whole number ("5") or a range of them ("5-7"), matching the database. */
+export const isGrade = (value: string) => /^\d{1,2}(-\d{1,2})?$/.test(value);
+
+/** "5 - 7" and "5–7" become "5-7"; anything else is left for validation to reject. */
+const tidyGrade = (value: string) => value.trim().replace(/\s*[-–]\s*/, '-');
 const isImageRef = (value: string) => isHttps(value) || isStoragePath(value.trim());
 const blankFile = (f: FileDraft) => !f.name.trim();
 const blankMedia = (m: MediaDraft) => !m.url.trim() && !m.caption.trim();
@@ -137,7 +143,7 @@ export function cleanDraft(d: ResourceDraft): ResourceDraft {
     slug: d.slug.trim(),
     title: d.title.trim(),
     subject: d.subject.trim(),
-    grade: d.grade.trim(),
+    grade: tidyGrade(d.grade),
     length: d.length.trim(),
     summary: d.summary.trim(),
     description: d.description.trim(),
@@ -199,10 +205,12 @@ export function validateDraft(draft: ResourceDraft): DraftErrors {
     errors.slug = `Keep the address under ${LIMITS.slug} characters.`;
   }
 
-  for (const field of ['subject', 'grade', 'length'] as const) {
+  if (!d.subject) errors.subject = 'Choose or type a subject.';
+  for (const field of ['subject', 'length'] as const) {
     if (d[field].length > LIMITS.short)
       errors[field] = `Keep this under ${LIMITS.short} characters.`;
   }
+  if (d.grade && !isGrade(d.grade)) errors.grade = 'Use a number like 5, or a range like 5-7.';
   if (d.summary.length > LIMITS.summary)
     errors.summary = `Keep the summary under ${LIMITS.summary} characters.`;
   if (d.description.length > LIMITS.description) {
@@ -215,7 +223,9 @@ export function validateDraft(draft: ResourceDraft): DraftErrors {
     else if (!d.coverConsent)
       errors.cover = 'Please confirm you have consent for any students shown in the cover.';
   }
-  if (d.driveLink && !isHttps(d.driveLink)) errors.driveLink = 'The link must start with https://';
+  if (!d.driveLink) errors.driveLink = 'Add the link to your resource.';
+  else if (!isHttps(d.driveLink) || /\s/.test(d.driveLink))
+    errors.driveLink = 'The link must start with https:// and have no spaces.';
 
   if (d.files.length > LIMITS.files) {
     errors.files = `List at most ${LIMITS.files} things under "What's inside".`;

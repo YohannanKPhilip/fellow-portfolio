@@ -1,4 +1,4 @@
-// Generated from the Supabase schema (project ydwjuixkrvavlbxmvdts). Do not edit by hand:
+﻿// Generated from the Supabase schema (project ydwjuixkrvavlbxmvdts). Do not edit by hand:
 // regenerate after any migration. Only the row types are kept; the generator's unused
 // Enums/CompositeTypes helpers are left out.
 
@@ -154,14 +154,14 @@ export type Database = {
           cover_path: string | null;
           created_at: string;
           description: string | null;
-          drive_link: string | null;
+          drive_link: string;
           grade: string | null;
           id: string;
           length: string | null;
           published_at: string | null;
           slug: string;
           status: string;
-          subject: string | null;
+          subject: string;
           summary: string | null;
           tags: string[];
           title: string;
@@ -174,14 +174,14 @@ export type Database = {
           cover_path?: string | null;
           created_at?: string;
           description?: string | null;
-          drive_link?: string | null;
+          drive_link: string;
           grade?: string | null;
           id?: string;
           length?: string | null;
           published_at?: string | null;
           slug: string;
           status?: string;
-          subject?: string | null;
+          subject: string;
           summary?: string | null;
           tags?: string[];
           title: string;
@@ -194,14 +194,14 @@ export type Database = {
           cover_path?: string | null;
           created_at?: string;
           description?: string | null;
-          drive_link?: string | null;
+          drive_link?: string;
           grade?: string | null;
           id?: string;
           length?: string | null;
           published_at?: string | null;
           slug?: string;
           status?: string;
-          subject?: string | null;
+          subject?: string;
           summary?: string | null;
           tags?: string[];
           title?: string;

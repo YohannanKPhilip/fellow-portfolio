@@ -22,7 +22,7 @@ function resource(over: Partial<ResourceRow> & { slug: string }): ResourceRow {
     cover_consent_confirmed: false,
     summary: null,
     description: null,
-    drive_link: null,
+    drive_link: 'https://drive.google.com/x',
     published_at: '2026-01-01T00:00:00Z',
     created_at: '2026-01-01T00:00:00Z',
     updated_at: '2026-01-01T00:00:00Z',
@@ -83,7 +83,10 @@ describe('imageRef', () => {
 
 describe('toDataset', () => {
   it('maps a row to the types the pages use, with empty strings for missing text', () => {
-    const { fellows, resources } = toDataset(fellow([resource({ slug: 'asha-one' })]), URL);
+    const { fellows, resources } = toDataset(
+      fellow([resource({ slug: 'asha-one', drive_link: '' })]),
+      URL,
+    );
     expect(fellows).toEqual([
       expect.objectContaining({
         id: 'asha',
@@ -144,7 +147,7 @@ describe('toDataset', () => {
   });
 
   it('falls back to "Other" when a resource has no subject', () => {
-    const { resources } = toDataset(fellow([resource({ slug: 'a-one', subject: null })]), URL);
+    const { resources } = toDataset(fellow([resource({ slug: 'a-one', subject: '' })]), URL);
     expect(resources[0]?.subject).toBe('Other');
   });
 

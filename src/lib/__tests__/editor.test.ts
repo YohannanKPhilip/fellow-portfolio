@@ -19,6 +19,8 @@ const valid = (over: Partial<ResourceDraft> = {}): ResourceDraft => ({
   ...emptyDraft(),
   slug: 'fractions-with-rotis',
   title: 'Fractions with rotis',
+  subject: 'Maths',
+  driveLink: 'https://drive.google.com/x',
   ...over,
 });
 
@@ -157,10 +159,38 @@ describe('validateDraft', () => {
     expect(validateDraft(valid({ description: 'x'.repeat(5001) })).description).toBeTypeOf(
       'string',
     );
-    expect(validateDraft(valid({ grade: 'x'.repeat(41) })).grade).toBeTypeOf('string');
+    expect(validateDraft(valid({ subject: 'x'.repeat(41) })).subject).toBeTypeOf('string');
   });
 
-  it('only allows https links', () => {
+  it('needs a title, a subject and a resource link', () => {
+    const errors = validateDraft(valid({ title: '', subject: ' ', driveLink: '' }));
+    expect(errors.title).toBeTypeOf('string');
+    expect(errors.subject).toBeTypeOf('string');
+    expect(errors.driveLink).toBeTypeOf('string');
+    expect(validateDraft(emptyDraft())).toMatchObject({
+      title: expect.any(String),
+      subject: expect.any(String),
+      driveLink: expect.any(String),
+    });
+  });
+
+  it('accepts a grade that is a number or a range, or none', () => {
+    for (const grade of ['', '5', '10', '5-7', '5 - 7', '5–7']) {
+      expect(validateDraft(valid({ grade })).grade, grade).toBeUndefined();
+    }
+    expect(cleanDraft(valid({ grade: ' 5 - 7 ' })).grade).toBe('5-7');
+  });
+
+  it('refuses a grade that is not a number or a range', () => {
+    for (const grade of ['Grade 5', 'five', '5-', '-7', '5-7-9', '5,7', '5.5', '123', '5 7']) {
+      expect(validateDraft(valid({ grade })).grade, grade).toBeTypeOf('string');
+    }
+  });
+
+  it('only allows https links without spaces', () => {
+    expect(validateDraft(valid({ driveLink: 'https://x.test/a b' })).driveLink).toBeTypeOf(
+      'string',
+    );
     expect(validateDraft(valid({ driveLink: 'http://drive.google.com/x' })).driveLink).toBeTypeOf(
       'string',
     );

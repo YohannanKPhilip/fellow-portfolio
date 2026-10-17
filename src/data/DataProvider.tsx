@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { config } from '../config';
 import { isReservedSlug } from '../lib/slug';
@@ -22,6 +22,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const slug = isSupabase ? (!first || isReservedSlug(first) ? undefined : first) : '';
   const [state, setState] = useState<DataState>({ status: 'loading' });
 
+  // The owner's pages (/me, /edit, /settings, a resource's /edit) change what visitors see. Coming
+  // back out of one loads the page again, so the public pages show what was just saved.
+  const ownerPage = /^\/[^/]+\/(me|edit|settings)$|^\/[^/]+\/r\/[^/]+\/edit$/.test(pathname);
+  const [reloads, setReloads] = useState(0);
+  const wasOwnerPage = useRef(ownerPage);
+  useEffect(() => {
+    if (wasOwnerPage.current && !ownerPage) setReloads((n) => n + 1);
+    wasOwnerPage.current = ownerPage;
+  }, [ownerPage]);
+
   useEffect(() => {
     if (slug === undefined) return;
     const controller = new AbortController();
@@ -39,7 +49,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         });
       });
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, reloads]);
 
   return <DataContext.Provider value={state}>{children}</DataContext.Provider>;
 }

@@ -120,7 +120,7 @@ export async function saveResource(
     user_id: userId,
     slug: draft.slug,
     title: draft.title,
-    subject: draft.subject || null,
+    subject: draft.subject,
     grade: draft.grade || null,
     length: draft.length || null,
     tags: draft.tags,
@@ -129,7 +129,7 @@ export async function saveResource(
     cover_consent_confirmed: draft.coverPath ? draft.coverConsent : false,
     summary: draft.summary || null,
     description: draft.description || null,
-    drive_link: draft.driveLink || null,
+    drive_link: draft.driveLink,
     ...(options.status ? { status: options.status } : {}),
   });
   if (error) {
