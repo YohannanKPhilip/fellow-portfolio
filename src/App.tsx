@@ -1,8 +1,13 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  ScrollRestoration,
+  type RouteObject,
+} from 'react-router-dom';
 import { AuthProvider } from './auth/AuthProvider';
 import { Layout } from './components/Layout';
-import { ScrollToTop } from './components/ScrollToTop';
 import { Loading, NotFoundView } from './components/StatusView';
 import { config } from './config';
 import { DataProvider } from './data/DataProvider';
@@ -36,18 +41,16 @@ const ResourceBuilder = lazy(() =>
 // BASE_URL is "/" at the site root (or a prefix such as "/fellow-portfolio/"); the router needs it without the trailing slash.
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-const signedInRoutes = (
-  <>
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/auth/callback" element={<CallbackPage />} />
-    <Route path="/setup" element={<SetupPage />} />
-    <Route path="/me" element={<MeRedirect />} />
-    <Route path="/:fellowId/me" element={<MePage />} />
-    <Route path="/:fellowId/edit" element={<PageBuilder />} />
-    <Route path="/:fellowId/settings" element={<SettingsPage />} />
-    <Route path="/:fellowId/r/:resourceId/edit" element={<ResourceBuilder />} />
-  </>
-);
+const signedInRoutes: RouteObject[] = [
+  { path: '/login', element: <LoginPage /> },
+  { path: '/auth/callback', element: <CallbackPage /> },
+  { path: '/setup', element: <SetupPage /> },
+  { path: '/me', element: <MeRedirect /> },
+  { path: '/:fellowId/me', element: <MePage /> },
+  { path: '/:fellowId/edit', element: <PageBuilder /> },
+  { path: '/:fellowId/settings', element: <SettingsPage /> },
+  { path: '/:fellowId/r/:resourceId/edit', element: <ResourceBuilder /> },
+];
 
 /** The sign-in pages need Supabase. With the Sheet as the data source they don't exist. */
 function WithAuth({ children }: { children: ReactNode }) {
@@ -58,28 +61,38 @@ function WithAuth({ children }: { children: ReactNode }) {
   );
 }
 
-export function App() {
+/** Everything every page shares: sign-in, data, the page frame, and scroll position. */
+function RootLayout() {
   return (
-    <BrowserRouter
-      basename={basename}
-      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-    >
-      <ScrollToTop />
-      <WithAuth>
-        <DataProvider>
-          <Layout>
-            <Suspense fallback={<Loading />}>
-              <Routes>
-                {config.dataSource === 'supabase' && signedInRoutes}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/:fellowId" element={<FellowPage />} />
-                <Route path="/:fellowId/r/:resourceId" element={<ResourcePage />} />
-                <Route path="*" element={<NotFoundView />} />
-              </Routes>
-            </Suspense>
-          </Layout>
-        </DataProvider>
-      </WithAuth>
-    </BrowserRouter>
+    <WithAuth>
+      <DataProvider>
+        <Layout>
+          <Suspense fallback={<Loading />}>
+            <Outlet />
+          </Suspense>
+        </Layout>
+      </DataProvider>
+      <ScrollRestoration />
+    </WithAuth>
   );
+}
+
+const router = createBrowserRouter(
+  [
+    {
+      element: <RootLayout />,
+      children: [
+        ...(config.dataSource === 'supabase' ? signedInRoutes : []),
+        { path: '/', element: <HomePage /> },
+        { path: '/:fellowId', element: <FellowPage /> },
+        { path: '/:fellowId/r/:resourceId', element: <ResourcePage /> },
+        { path: '*', element: <NotFoundView /> },
+      ],
+    },
+  ],
+  { basename, future: { v7_relativeSplatPath: true } },
+);
+
+export function App() {
+  return <RouterProvider router={router} future={{ v7_startTransition: true }} />;
 }

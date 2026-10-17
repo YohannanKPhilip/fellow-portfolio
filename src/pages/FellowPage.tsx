@@ -8,10 +8,12 @@ import { useData } from '../data/dataContext';
 import { sectionResources } from '../lib/page';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { useFellowTheme } from '../lib/useFellowTheme';
+import { useRevealAfterLoad } from '../lib/useRevealAfterLoad';
 
 export function FellowPage() {
   const { fellowId } = useParams();
   const state = useData();
+  const reveal = useRevealAfterLoad(state.status === 'loading');
   const fellow =
     state.status === 'ready'
       ? state.data.dataset.fellows.find((f) => f.id === fellowId)
@@ -28,7 +30,7 @@ export function FellowPage() {
 
   // The page is drawn from the fellow's list of sections, in their order.
   return (
-    <>
+    <div className={reveal ? 'reveal' : 'page'}>
       {fellow.page.sections.map((section) => {
         if (section.type === 'hero') {
           return <Hero key={section.id} fellow={fellow} blocks={section.blocks} />;
@@ -46,6 +48,6 @@ export function FellowPage() {
         );
       })}
       <OwnerEditButton fellowId={fellow.id} />
-    </>
+    </div>
   );
 }

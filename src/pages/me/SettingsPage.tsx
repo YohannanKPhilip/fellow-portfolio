@@ -90,7 +90,7 @@ function Settings({ userId, email, fellow, setFellow }: OwnerContext) {
 
   return (
     <div className="auth auth--narrow">
-      <Link className="back" to={`${base}/me`}>
+      <Link viewTransition className="back" to={`${base}/me`}>
         ← My page
       </Link>
       <h1 className="auth__title">
@@ -221,7 +221,7 @@ function Settings({ userId, email, fellow, setFellow }: OwnerContext) {
               {visibilityBusy ? 'Saving…' : published ? 'Unpublish my page' : 'Publish my page'}
             </button>
             {published && (
-              <Link className="button button--ghost" to={base}>
+              <Link viewTransition className="button button--ghost" to={base}>
                 View my page
               </Link>
             )}

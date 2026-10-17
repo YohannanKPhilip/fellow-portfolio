@@ -30,6 +30,7 @@ function Owner({ userId, fellowId, resourceId }: Props & { userId: string }) {
   if (mine.state.status !== 'ready' || mine.state.fellow?.slug !== fellowId) return null;
   return (
     <Link
+      viewTransition
       className="owneredit"
       to={resourceId ? `/${fellowId}/r/${resourceId}/edit` : `/${fellowId}/edit`}
     >

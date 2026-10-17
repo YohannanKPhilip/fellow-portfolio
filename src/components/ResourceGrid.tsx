@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { Resource } from '../types';
 import { ResourceCard } from './ResourceCard';
@@ -25,8 +25,11 @@ export function ResourceGrid({
   const requested = params.get(paramKey);
   const active = requested && subjects.includes(requested) ? requested : 'all';
   const shown = active === 'all' ? resources : resources.filter((r) => r.subject === active);
+  // Cards rise in one after another when a visitor changes the filter, not when the page opens.
+  const [filtered, setFiltered] = useState(false);
 
   const choose = (subject: string) => {
+    setFiltered(true);
     const next = new URLSearchParams(params);
     if (subject === 'all') next.delete(paramKey);
     else next.set(paramKey, subject);
@@ -48,7 +51,7 @@ export function ResourceGrid({
           ))}
         </div>
       )}
-      <div className="grid">
+      <div className={filtered ? 'grid grid--rise' : 'grid'} key={active}>
         {shown.map((r) => (
           <ResourceCard key={r.id} resource={r} to={cardTo?.(r)} />
         ))}

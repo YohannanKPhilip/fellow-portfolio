@@ -11,7 +11,7 @@ export function HomePage() {
         A sharing space for TFI fellows. Sign in to build your page and share your resources.
       </p>
       {config.dataSource === 'supabase' && (
-        <Link className="button button--accent" to="/login">
+        <Link viewTransition className="button button--accent" to="/login">
           Sign in / Log in
         </Link>
       )}

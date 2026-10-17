@@ -11,6 +11,7 @@ export function Cover({
   className,
   width = 800,
   blurhash,
+  transitionName,
   onFail,
 }: {
   url: string;
@@ -18,6 +19,8 @@ export function Cover({
   width?: number;
   /** Blurred stand-in shown until the picture has loaded. */
   blurhash?: string;
+  /** Gives the cover a view-transition-name, so it can morph between a card and a resource page. */
+  transitionName?: string;
   /** Called when the picture can't be loaded, so the caller can show something else. */
   onFail?: () => void;
 }) {
@@ -25,7 +28,10 @@ export function Cover({
   const src = imageUrl(url, width);
   if (!src || failed) return null;
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={transitionName ? { viewTransitionName: transitionName } : undefined}
+    >
       <BlurImg
         src={src}
         alt=""

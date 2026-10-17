@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { OwnerGate } from '../../auth/OwnerGate';
 import { HeroEditor } from '../../components/editor/HeroEditor';
@@ -30,6 +38,7 @@ import {
   type PageDoc,
   type Section,
 } from '../../lib/page';
+import { withViewTransition } from '../../lib/motion';
 import type { Theme } from '../../lib/theme';
 import { parseTheme } from '../../lib/theme';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
@@ -78,6 +87,8 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
   const [openSettings, setOpenSettings] = useState<string | null>(null);
   // Pictures uploaded in this visit, so ones that end up unused can be cleaned up.
   const uploaded = useRef<string[]>([]);
+  // The sections' container: marked while a section moves, so each one animates to its new place.
+  const pageRef = useRef<HTMLDivElement>(null);
   const mine = useMyResources(userId);
 
   // The whole page shows the chosen style while editing.
@@ -95,6 +106,9 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
     setNotice(undefined);
     setDraft((d) => ({ ...d, page }));
   };
+  /** Adding, moving, copying and removing sections change the page's layout, so they animate. */
+  const rearrange = (page: PageDoc) =>
+    withViewTransition(() => setPage(page), { scope: pageRef.current });
 
   // The resources a visitor would see: published ones, oldest first.
   const published = useMemo(
@@ -171,17 +185,19 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
         : type === 'links'
           ? defaultLinksSection(newSectionId())
           : defaultResourcesSection(newSectionId());
-    setPage(insertSection(draft.page, section, afterId));
+    rearrange(insertSection(draft.page, section, afterId));
   };
 
   return (
     <div className="builder">
       <div className="builder__bar" role="toolbar" aria-label="Page editor">
-        <Link className="builder__back" to={`${base}/me`} onClick={leave}>
+        <Link viewTransition className="builder__back" to={`${base}/me`} onClick={leave}>
           ← Back
         </Link>
         <span className="builder__status" aria-live="polite">
-          {notice ?? (dirty ? 'Unsaved changes' : 'All changes saved')}
+          <span key={notice ?? String(dirty)} className="fade">
+            {notice ?? (dirty ? 'Unsaved changes' : 'All changes saved')}
+          </span>
         </span>
         <div className="builder__actions">
           <button
@@ -192,7 +208,12 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
           >
             Style
           </button>
-          <Link className="button button--ghost" to={`${base}/settings`} onClick={leave}>
+          <Link
+            viewTransition
+            className="button button--ghost"
+            to={`${base}/settings`}
+            onClick={leave}
+          >
             Settings
           </Link>
           {dirty && (
@@ -221,7 +242,9 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
           <h2 className="panel__title">Page style</h2>
           <StylePanel
             theme={draft.theme}
-            onChange={(patch) => setDraft((d) => ({ ...d, theme: { ...d.theme, ...patch } }))}
+            onChange={(patch) =>
+              withViewTransition(() => setDraft((d) => ({ ...d, theme: { ...d.theme, ...patch } })))
+            }
           />
         </section>
       )}
@@ -232,7 +255,7 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
         </p>
       )}
 
-      <div className="builder__page">
+      <div className="builder__page" ref={pageRef}>
         <AddSection hasHero={hasHero} onAdd={(type) => addSection(type)} />
         {draft.page.sections.map((section, i) => {
           const count = draft.page.sections.length;
@@ -282,7 +305,12 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
             );
           }
           return (
-            <div key={section.id}>
+            <div
+              key={section.id}
+              style={
+                { '--vt-name': `section-${section.id.replace(/[^\w-]/g, '')}` } as CSSProperties
+              }
+            >
               <SectionFrame
                 label={LABEL[section.type]}
                 canMoveUp={i > 0}
@@ -292,11 +320,11 @@ function Builder({ userId, fellow }: { userId: string; fellow: MyFellow }) {
                 canSettings={section.type === 'resources'}
                 settingsOpen={openSettings === section.id}
                 onSettings={() => setOpenSettings((id) => (id === section.id ? null : section.id))}
-                onMove={(by) => setPage(moveSection(draft.page, section.id, by))}
-                onDuplicate={() => setPage(duplicateSection(draft.page, section.id))}
+                onMove={(by) => rearrange(moveSection(draft.page, section.id, by))}
+                onDuplicate={() => rearrange(duplicateSection(draft.page, section.id))}
                 onDelete={() => {
                   if (window.confirm(`Remove this ${LABEL[section.type].toLowerCase()} section?`)) {
-                    setPage(removeSection(draft.page, section.id));
+                    rearrange(removeSection(draft.page, section.id));
                   }
                 }}
               >

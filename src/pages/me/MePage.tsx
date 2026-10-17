@@ -89,14 +89,14 @@ function Me({ userId, email, fellow, setFellow }: OwnerContext) {
           </div>
         </div>
         <div className="form__actions">
-          <Link className="button button--accent" to={`${base}/edit`}>
+          <Link viewTransition className="button button--accent" to={`${base}/edit`}>
             Edit page
           </Link>
-          <Link className="button button--ghost" to={`${base}/settings`}>
+          <Link viewTransition className="button button--ghost" to={`${base}/settings`}>
             Settings
           </Link>
           {published && (
-            <Link className="button button--ghost" to={base}>
+            <Link viewTransition className="button button--ghost" to={base}>
               View
             </Link>
           )}
@@ -124,7 +124,7 @@ function Me({ userId, email, fellow, setFellow }: OwnerContext) {
 
       <div className="me__head">
         <h2 className="me__heading">Your resources</h2>
-        <Link className="button button--accent" to={`${base}/r/new/edit`}>
+        <Link viewTransition className="button button--accent" to={`${base}/r/new/edit`}>
           Add a resource
         </Link>
       </div>
@@ -181,7 +181,13 @@ function MyResourceCard({
         to={published ? `/${fellowSlug}/r/${r.slug}` : editTo}
       />
       {!published && <span className="mycard__draft">Draft</span>}
-      <Link className="mycard__edit" to={editTo} aria-label={`Edit ${r.title}`} title="Edit">
+      <Link
+        viewTransition
+        className="mycard__edit"
+        to={editTo}
+        aria-label={`Edit ${r.title}`}
+        title="Edit"
+      >
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path
             d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Zm9.5-12.5 3 3"

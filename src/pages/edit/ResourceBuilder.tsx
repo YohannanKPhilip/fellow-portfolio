@@ -199,14 +199,16 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
   return (
     <div className="builder builder--resource">
       <div className="builder__bar" role="toolbar" aria-label="Resource editor">
-        <Link className="builder__back" to={`${base}/me`} onClick={leave}>
+        <Link viewTransition className="builder__back" to={`${base}/me`} onClick={leave}>
           ← Back
         </Link>
         <span className={`badge ${published ? 'badge--live' : ''}`}>
           {isNew ? 'New' : published ? 'Published' : 'Draft'}
         </span>
         <span className="builder__status" aria-live="polite">
-          {status}
+          <span key={status} className="fade">
+            {status}
+          </span>
         </span>
         <div className="builder__actions">
           {!isNew && (
@@ -220,7 +222,12 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
             </button>
           )}
           {published && (
-            <Link className="button button--ghost" to={`${base}/r/${saved.slug}`} onClick={leave}>
+            <Link
+              viewTransition
+              className="button button--ghost"
+              to={`${base}/r/${saved.slug}`}
+              onClick={leave}
+            >
               View
             </Link>
           )}

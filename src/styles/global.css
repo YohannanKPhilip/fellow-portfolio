@@ -14,6 +14,11 @@
   --live: #22c55e;
   --font: 'Geist', 'Helvetica Neue', Arial, system-ui, sans-serif;
   --radius-card: 22px;
+  /* Motion: short and quiet. See docs/ARCHITECTURE.md. */
+  --dur-fast: 120ms;
+  --dur: 200ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
   color-scheme: light;
 }
 
@@ -208,6 +213,10 @@ a {
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 999px;
+  transition:
+    color var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
 }
 
 .filters button[aria-pressed='true'] {
@@ -482,6 +491,54 @@ a {
 
 .chips--head {
   margin-top: 14px;
+}
+
+/* ---------- Page changes (View Transitions; browsers without them just switch pages) ---------- */
+
+/* The old page fades out as the new one fades in. Same length and curve, so the two always add up to
+   a whole page and nothing dips in brightness midway. */
+::view-transition-old(root) {
+  animation: fade-out var(--dur) var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: fade var(--dur) var(--ease-out) both;
+}
+
+/* Named pieces (a moving section, a growing cover) glide to their new place. */
+::view-transition-group(*) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--dur);
+}
+
+/* In the page builder, each section is named only while one moves, so it slides instead of jumping. */
+.builder__page[data-vt] > div {
+  view-transition-name: var(--vt-name);
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* A card's cover grows into the resource page's cover (and back). Both are named "resource-cover". */
+::view-transition-group(resource-cover) {
+  overflow: clip;
+  border-radius: var(--radius-card);
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out);
+}
+
+::view-transition-old(resource-cover),
+::view-transition-new(resource-cover) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* ---------- Classroom photos and videos ---------- */
@@ -777,6 +834,15 @@ a {
   background: var(--ink);
   border: 1px solid var(--ink);
   border-radius: 999px;
+  transition:
+    color var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.button:active:not(:disabled):not(.button--disabled) {
+  transform: scale(0.98);
 }
 
 .button--block {
@@ -878,6 +944,123 @@ a {
   }
 }
 
+/* Shared entrance keyframes. Fill with `backwards` so a delayed item stays hidden until its turn. */
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+/* ---------- Entrances ---------- */
+
+/* Windows, menus and panels ease in when they open. (They disappear at once when closed.) */
+.dialog[open] {
+  animation: pop var(--dur) var(--ease-out);
+}
+
+.dialog[open]::backdrop {
+  animation: fade var(--dur) var(--ease-out);
+}
+
+.addmenu,
+.photomenu,
+.builder__style,
+.sectionsettings {
+  animation: pop var(--dur) var(--ease-out);
+}
+
+.fade {
+  animation: fade var(--dur) var(--ease-out);
+}
+
+/* These wrappers add no box of their own; the page lays out as if they weren't there. */
+.page,
+.reveal {
+  display: contents;
+}
+
+/* Card position in a grid sets its delay: 30ms apart, capped so a long list doesn't drag. */
+.grid > * {
+  --i: 8;
+}
+
+.grid > :nth-child(1) {
+  --i: 0;
+}
+
+.grid > :nth-child(2) {
+  --i: 1;
+}
+
+.grid > :nth-child(3) {
+  --i: 2;
+}
+
+.grid > :nth-child(4) {
+  --i: 3;
+}
+
+.grid > :nth-child(5) {
+  --i: 4;
+}
+
+.grid > :nth-child(6) {
+  --i: 5;
+}
+
+.grid > :nth-child(7) {
+  --i: 6;
+}
+
+.grid > :nth-child(8) {
+  --i: 7;
+}
+
+/* After a filter change: the new cards rise in one by one. */
+.grid--rise > * {
+  animation: rise var(--dur-slow) var(--ease-out) backwards;
+  animation-delay: calc(var(--i) * 30ms);
+}
+
+/* After a skeleton: the intro lines, section headings and cards arrive in a short sequence. */
+.reveal .hero > * {
+  animation: rise var(--dur-slow) var(--ease-out) backwards;
+}
+
+.reveal .hero > :nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.reveal .hero > :nth-child(n + 3) {
+  animation-delay: 120ms;
+}
+
+.reveal .section-title,
+.reveal .section-sub,
+.reveal .filters,
+.reveal .detail__body > * {
+  animation: rise var(--dur-slow) var(--ease-out) 120ms backwards;
+}
+
+.reveal .grid > * {
+  animation: rise var(--dur-slow) var(--ease-out) backwards;
+  animation-delay: calc(160ms + var(--i) * 30ms);
+}
+
 /* ---------- Footer ---------- */
 
 .footer {
@@ -955,18 +1138,28 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .avatar,
-  .card,
-  .skeleton {
-    transition: none;
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 
   .hero__title:hover .avatar {
     transform: rotate(-3deg);
   }
 
-  .card:hover {
+  .card:hover,
+  .linkcard:hover {
     transform: none;
   }
 }

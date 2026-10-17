@@ -32,7 +32,7 @@ export function NotFoundView({ what = 'page' }: { what?: string }) {
     <div className="status">
       <h1 className="status__title">This {what} doesn't exist.</h1>
       <p className="status__text">It may have been renamed or not published yet.</p>
-      <Link className="button" to="/">
+      <Link viewTransition className="button" to="/">
         Go to the home page
       </Link>
     </div>

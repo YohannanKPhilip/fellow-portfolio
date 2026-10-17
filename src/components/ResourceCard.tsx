@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useViewTransitionState } from 'react-router-dom';
 import { imageUrl } from '../lib/links';
 import type { Resource } from '../types';
 import { Cover } from './Cover';
@@ -13,8 +13,21 @@ const MAX_TAGS = 3;
  *
  * `to` is where a click goes (default: the resource's public page). `null` makes the card a plain
  * preview that doesn't link anywhere, as in the page builder.
+ *
+ * `morph` lets the cover grow into the resource page's cover when the card is opened. Turn it off
+ * for cards on a resource page, where the page's own cover already holds that transition name.
  */
-export function ResourceCard({ resource, to }: { resource: Resource; to?: string | null }) {
+export function ResourceCard({
+  resource,
+  to,
+  morph = true,
+}: {
+  resource: Resource;
+  to?: string | null;
+  morph?: boolean;
+}) {
+  const href = to ?? `/${resource.fellowId}/r/${resource.id}`;
+  const morphing = useViewTransitionState(href);
   const [coverFailed, setCoverFailed] = useState(false);
   const showCover = Boolean(imageUrl(resource.coverUrl)) && !coverFailed;
   const { tags } = resource;
@@ -28,6 +41,7 @@ export function ResourceCard({ resource, to }: { resource: Resource; to?: string
           className="cover cover--card"
           width={700}
           blurhash={resource.coverBlurhash}
+          transitionName={morph && to !== null && morphing ? 'resource-cover' : undefined}
           onFail={() => setCoverFailed(true)}
         />
       )}
@@ -54,7 +68,7 @@ export function ResourceCard({ resource, to }: { resource: Resource; to?: string
 
   if (to === null) return <div className="card card--preview">{content}</div>;
   return (
-    <Link className="card" to={to ?? `/${resource.fellowId}/r/${resource.id}`}>
+    <Link className="card" to={href} viewTransition>
       {content}
     </Link>
   );

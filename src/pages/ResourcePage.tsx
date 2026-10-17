@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useViewTransitionState } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { Cover } from '../components/Cover';
 import { MediaGallery } from '../components/MediaGallery';
@@ -10,6 +10,7 @@ import { useData } from '../data/dataContext';
 import { safeUrl } from '../lib/links';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { useFellowTheme } from '../lib/useFellowTheme';
+import { useRevealAfterLoad } from '../lib/useRevealAfterLoad';
 
 /** How many other resources to show at the bottom of a resource page. */
 const MORE_COUNT = 3;
@@ -27,6 +28,9 @@ export function ResourcePage() {
     state.status === 'ready'
       ? state.data.dataset.fellows.find((f) => f.id === fellowId)
       : undefined;
+  // True while a card is growing into this page (or this page is shrinking back into its card).
+  const morphing = useViewTransitionState(`/${fellowId}/r/${resourceId}`);
+  const reveal = useRevealAfterLoad(state.status === 'loading');
   useDocumentTitle(resource?.title);
   useFellowTheme(pageFellow?.theme);
 
@@ -48,9 +52,9 @@ export function ResourcePage() {
   ];
 
   return (
-    <article className="detail">
+    <article className={reveal ? `detail ${reveal}` : 'detail'}>
       <OwnerEditButton fellowId={resource.fellowId} resourceId={resource.id} />
-      <Link className="back" to={`/${resource.fellowId}`}>
+      <Link viewTransition className="back" to={`/${resource.fellowId}`}>
         ← All resources
       </Link>
 
@@ -75,6 +79,7 @@ export function ResourcePage() {
           className="cover cover--detail"
           width={1000}
           blurhash={resource.coverBlurhash}
+          transitionName={morphing ? 'resource-cover' : undefined}
         />
 
         <section className="panel detail__desc">
@@ -152,10 +157,10 @@ export function ResourcePage() {
           </h2>
           <div className="grid">
             {others.slice(0, MORE_COUNT).map((r) => (
-              <ResourceCard key={r.id} resource={r} />
+              <ResourceCard key={r.id} resource={r} morph={false} />
             ))}
           </div>
-          <Link className="more__all" to={`/${fellow.id}`}>
+          <Link viewTransition className="more__all" to={`/${fellow.id}`}>
             {others.length > MORE_COUNT
               ? `See all ${others.length + 1} resources →`
               : 'See all resources →'}
