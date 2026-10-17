@@ -84,9 +84,7 @@ export function ResourcePage() {
 
         <section className="panel detail__desc">
           <h2 className="panel__title">Description</h2>
-          <p className="detail__desctext">
-            {resource.description || resource.summary}
-          </p>
+          <p className="detail__desctext">{resource.description || resource.summary}</p>
         </section>
         <div className="detail__media">
           <MediaGallery items={resource.media} />

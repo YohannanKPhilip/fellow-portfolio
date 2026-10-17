@@ -386,9 +386,9 @@ function Builder({ userId, fellow, initial }: OwnerContext & { initial: Resource
                   onChange={(e) => set('driveLink', e.target.value)}
                 />
                 <p className="form__hint">
-                  Any link: Google Drive, Notion, a website, a video or a document. Make sure
-                  anyone with the link can open it (for Drive, set sharing to "anyone with the
-                  link can view").
+                  Any link: Google Drive, Notion, a website, a video or a document. Make sure anyone
+                  with the link can open it (for Drive, set sharing to "anyone with the link can
+                  view").
                 </p>
                 {fieldError(errors.driveLink)}
               </div>
