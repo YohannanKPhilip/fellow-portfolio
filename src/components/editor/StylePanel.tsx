@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, type CSSProperties } from 'react';
 import {
   ACCENTS,
   BACKGROUNDS,
   FONTS,
   type AccentName,
   type BackgroundName,
+  type BackgroundOption,
   type FontName,
   type Theme,
 } from '../../lib/theme';
@@ -44,18 +45,33 @@ export function StylePanel({
       </div>
       <div className="field">
         <span className="field__label">Background</span>
-        <div className="choices" role="group" aria-label="Background">
-          {(Object.keys(BACKGROUNDS) as BackgroundName[]).map((b) => (
-            <button
-              key={b}
-              type="button"
-              className="choice"
-              aria-pressed={(theme.background ?? 'auto') === b}
-              onClick={() => set({ background: b })}
-            >
-              {BACKGROUNDS[b].label}
-            </button>
-          ))}
+        <div className="themes" role="group" aria-label="Background">
+          {(Object.keys(BACKGROUNDS) as BackgroundName[]).map((b) => {
+            const { label, preview } = BACKGROUNDS[b] as BackgroundOption;
+            return (
+              <button
+                key={b}
+                type="button"
+                className="themetile"
+                aria-pressed={(theme.background ?? 'auto') === b}
+                style={
+                  {
+                    '--tile-bg': preview.bg,
+                    '--tile-bg2': preview.bg2 ?? preview.bg,
+                    '--tile-ink': preview.ink,
+                    '--tile-accent': preview.accent,
+                  } as CSSProperties
+                }
+                onClick={() => set({ background: b })}
+              >
+                <span className="themetile__swatch" aria-hidden="true">
+                  <span className="themetile__aa">Aa</span>
+                  <span className="themetile__dot" />
+                </span>
+                <span className="themetile__label">{label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className="field">

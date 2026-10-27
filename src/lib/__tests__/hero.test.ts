@@ -10,7 +10,14 @@ import {
   type HeroDoc,
 } from '../hero';
 import { editorToHero, heroToEditor, type EditorNode } from '../heroEditor';
-import { accentColor, effectiveMode, parseTheme } from '../theme';
+import {
+  accentColor,
+  BACKGROUNDS,
+  effectiveMode,
+  INK_ON_ACCENT,
+  inkOnAccent,
+  parseTheme,
+} from '../theme';
 
 const PHOTO = { src: '', initial: 'Y' };
 
@@ -224,5 +231,24 @@ describe('theme', () => {
     expect(effectiveMode('warm', true)).toBe('light');
     expect(effectiveMode('auto', true)).toBe('dark');
     expect(effectiveMode(undefined, false)).toBe('light');
+    expect(effectiveMode('warmblack', false)).toBe('dark');
+    expect(effectiveMode('chalkboard', false)).toBe('dark');
+  });
+
+  it('reads the new dark backgrounds', () => {
+    expect(parseTheme({ background: 'warmblack' })).toEqual({ background: 'warmblack' });
+    expect(parseTheme({ background: 'chalkboard' })).toEqual({ background: 'chalkboard' });
+  });
+
+  it('gives every background a preview tile', () => {
+    for (const b of Object.values(BACKGROUNDS)) expect(b.preview.bg).toMatch(/^#[0-9a-f]{6}$/i);
+  });
+
+  it('picks dark or white text for an accent button, whichever reads better', () => {
+    expect(inkOnAccent('#ee6a1b')).toBe(INK_ON_ACCENT.dark);
+    expect(inkOnAccent('#ff8240')).toBe(INK_ON_ACCENT.dark);
+    expect(inkOnAccent('#2563d6')).toBe(INK_ON_ACCENT.light);
+    expect(inkOnAccent('#6d3fe0')).toBe(INK_ON_ACCENT.light);
+    expect(inkOnAccent('#3ddc84')).toBe(INK_ON_ACCENT.dark);
   });
 });

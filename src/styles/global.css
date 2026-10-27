@@ -12,6 +12,8 @@
   --line: #e4e4e0;
   --accent: #ee6a1b;
   --live: #22c55e;
+  /* Text on an accent-colored button. The page style sets it when the accent changes. */
+  --on-accent: #141414;
   --font: 'Geist', 'Helvetica Neue', Arial, system-ui, sans-serif;
   --radius-card: 22px;
   /* Motion: short and quiet. See docs/ARCHITECTURE.md. */
@@ -1371,7 +1373,7 @@ a {
 }
 
 .button--accent {
-  color: #141414;
+  color: var(--on-accent);
   background: var(--accent);
   border-color: var(--accent);
 }
@@ -1931,6 +1933,40 @@ a {
   color-scheme: dark;
 }
 
+/* Dark themes with their own accent. Role map: bg -> --bg, ink -> --ink, body -> --soft,
+   dim -> --muted, chip-bg -> --card, chip-border -> --line. A fellow's own accent pick still wins
+   (it is set inline on the page). */
+:root[data-bg='warmblack'],
+:root[data-bg='chalkboard'] {
+  --live: #34d36e;
+  --hc-blue: #6aa8ff;
+  --hc-green: #3ddc84;
+  --hc-pink: #ff7ab6;
+  --hc-purple: #b08cff;
+  --hc-teal: #3ccfc0;
+  color-scheme: dark;
+}
+
+:root[data-bg='warmblack'] {
+  --bg: #131110;
+  --ink: #f6f1e9;
+  --muted: #8d857a;
+  --soft: #bdb5a9;
+  --accent: #ff7f3f;
+  --card: #1d1a17;
+  --line: #2d2925;
+}
+
+:root[data-bg='chalkboard'] {
+  --bg: #15211d;
+  --ink: #f3f0e6;
+  --muted: #8fa59a;
+  --soft: #b8c4bb;
+  --accent: #ffa24a;
+  --card: #1c2b26;
+  --line: #2b3d36;
+}
+
 /* Headline font choice (falls back to the normal font). */
 .hero__title,
 .section-title,
@@ -2226,6 +2262,65 @@ a {
 .field__label {
   font-size: 0.92rem;
   font-weight: 600;
+}
+
+/* Theme picker: one small preview tile per background, like Substack's theme grid. The tile
+   colors are the theme's own (set inline), so every tile looks right whatever theme is active. */
+.themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 10px;
+}
+
+.themetile {
+  display: grid;
+  gap: 8px;
+  padding: 6px 6px 10px;
+  font: inherit;
+  font-size: 0.86rem;
+  color: var(--ink);
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  transition: border-color var(--dur) var(--ease-out);
+}
+
+.themetile:hover {
+  border-color: var(--ink);
+}
+
+.themetile[aria-pressed='true'] {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.themetile__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 64px;
+  background: linear-gradient(135deg, var(--tile-bg) 50%, var(--tile-bg2) 50%);
+  border: 1px solid color-mix(in srgb, var(--tile-ink) 18%, transparent);
+  border-radius: 11px;
+}
+
+.themetile__aa {
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--tile-ink);
+}
+
+.themetile__dot {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  width: 10px;
+  height: 10px;
+  background: var(--tile-accent);
+  border-radius: 50%;
 }
 
 .setup__preview {
@@ -2530,7 +2625,7 @@ a {
   z-index: 30;
   padding: 12px 20px;
   font-weight: 600;
-  color: #141414;
+  color: var(--on-accent);
   text-decoration: none;
   background: var(--accent);
   border-radius: 999px;

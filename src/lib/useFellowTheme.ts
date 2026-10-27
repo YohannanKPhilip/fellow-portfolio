@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { accentColor, effectiveMode, FONTS, parseTheme, type Theme } from './theme';
+import { accentColor, effectiveMode, FONTS, inkOnAccent, parseTheme, type Theme } from './theme';
 
 const FONT_LINK_ATTR = 'data-fellow-font';
 
@@ -35,8 +35,13 @@ export function useFellowTheme(theme: Theme | undefined) {
       else delete root.dataset.bg;
 
       const accent = accentColor(t, effectiveMode(t.background, media.matches));
-      if (accent) root.style.setProperty('--accent', accent);
-      else root.style.removeProperty('--accent');
+      if (accent) {
+        root.style.setProperty('--accent', accent);
+        root.style.setProperty('--on-accent', inkOnAccent(accent));
+      } else {
+        root.style.removeProperty('--accent');
+        root.style.removeProperty('--on-accent');
+      }
 
       const font = t.font ? FONTS[t.font] : undefined;
       if (font?.stack) {
@@ -53,6 +58,7 @@ export function useFellowTheme(theme: Theme | undefined) {
       media.removeEventListener('change', apply);
       delete root.dataset.bg;
       root.style.removeProperty('--accent');
+      root.style.removeProperty('--on-accent');
       root.style.removeProperty('--font-head');
     };
   }, [key]);

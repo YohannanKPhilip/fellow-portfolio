@@ -21,12 +21,48 @@ export const ACCENTS = {
 } as const satisfies Record<string, AccentOption>;
 export type AccentName = keyof typeof ACCENTS;
 
+export interface BackgroundOption {
+  label: string;
+  /** Whether the page is light or dark with this background; undefined follows the device. */
+  mode?: 'light' | 'dark';
+  /**
+   * Colors for the picker's preview tile: page, text, and the theme's own accent. `bg2` adds a second
+   * half to the tile (used by "Match device", which is light or dark).
+   */
+  preview: { bg: string; ink: string; accent: string; bg2?: string };
+}
+
 export const BACKGROUNDS = {
-  auto: { label: 'Match device' },
-  light: { label: 'Light' },
-  dark: { label: 'Dark' },
-  warm: { label: 'Warm' },
-} as const;
+  auto: {
+    label: 'Match device',
+    preview: { bg: '#f4f4f2', bg2: '#111110', ink: '#8a8a85', accent: '#ee6a1b' },
+  },
+  light: {
+    label: 'Light',
+    mode: 'light',
+    preview: { bg: '#f4f4f2', ink: '#141414', accent: '#ee6a1b' },
+  },
+  dark: {
+    label: 'Dark',
+    mode: 'dark',
+    preview: { bg: '#111110', ink: '#f3f3f1', accent: '#ff8240' },
+  },
+  warm: {
+    label: 'Warm',
+    mode: 'light',
+    preview: { bg: '#f6efe3', ink: '#2b2118', accent: '#ee6a1b' },
+  },
+  warmblack: {
+    label: 'Warm black',
+    mode: 'dark',
+    preview: { bg: '#131110', ink: '#f6f1e9', accent: '#ff7f3f' },
+  },
+  chalkboard: {
+    label: 'Chalkboard',
+    mode: 'dark',
+    preview: { bg: '#15211d', ink: '#f3f0e6', accent: '#ffa24a' },
+  },
+} as const satisfies Record<string, BackgroundOption>;
 export type BackgroundName = keyof typeof BACKGROUNDS;
 
 export const FONTS = {
@@ -74,9 +110,26 @@ export function effectiveMode(
   background: BackgroundName | undefined,
   systemDark: boolean,
 ): 'light' | 'dark' {
-  if (background === 'dark') return 'dark';
-  if (background === 'light' || background === 'warm') return 'light';
-  return systemDark ? 'dark' : 'light';
+  const mode = background ? (BACKGROUNDS[background] as BackgroundOption).mode : undefined;
+  return mode ?? (systemDark ? 'dark' : 'light');
+}
+
+function luminance(hex: string): number {
+  const channel = (i: number) => {
+    const c = parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2);
+}
+
+export const INK_ON_ACCENT = { dark: '#141414', light: '#ffffff' } as const;
+
+/** Text color for sitting on an accent-colored button: whichever of near-black or white reads better. */
+export function inkOnAccent(accentHex: string): string {
+  const l = luminance(accentHex);
+  const contrastWithDark = (l + 0.05) / (luminance(INK_ON_ACCENT.dark) + 0.05);
+  const contrastWithLight = 1.05 / (l + 0.05);
+  return contrastWithDark >= contrastWithLight ? INK_ON_ACCENT.dark : INK_ON_ACCENT.light;
 }
 
 /** The accent color to use, or undefined for the site's own orange. */
